@@ -1,0 +1,52 @@
+{
+  "all_meals": [
+    {
+      "categoria": "FRUITS",
+      "fecha": "Thursday, October 2nd, 2025",
+      "descripcion": "Selección de frutas frescas y secas",
+      "items": [
+        {
+          "subcat": "DRIED",
+          "menu": "Apricots, Cranberries, Golden Raisins, Raisins"
+        },
+        {
+          "subcat": "WHOLE",
+          "menu": "Banana, Blackberries, Blueberries, Raspberry, Strawberry"
+        },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" }
+      ]
+    },
+    {
+      "categoria": "BREAKFAST - PREMIUM CONTINENTAL",
+      "fecha": "Monday, October 6th, 2025",
+      "descripcion": "Includes coffee, tea service, fresh juices, and pastries",
+      "items": [
+        {
+          "subcat": "BREAKFAST SANDWICH PLATTER",
+          "menu": "Baked Ham Croissant Sandwiches with cheddar and cucumber; Smoked Salmon Croissant Sandwiches with cream cheese"
+        },
+        {
+          "subcat": "DEVILED EGGS PLATTER",
+          "menu": "Avocado Feta, Kalamata & Spinach; Ham & Cheese; Panceta - Jalapeno"
+        },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" },
+        { "subcat": "", "menu": "" }
+      ]
+    }
+  ]
+}

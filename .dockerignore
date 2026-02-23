@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+.git/
+.gitignore
+tests/
+.pytest_cache/
+*.docx
+!template.docx
