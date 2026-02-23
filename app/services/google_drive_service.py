@@ -2,12 +2,12 @@ import os
 import json
 import logging
 from io import BytesIO
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 
 # Scopes required for Google Drive API
-# Using 'drive' instead of 'drive.file' to ensure we can access folders shared with the service account
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 logger = logging.getLogger(__name__)
@@ -15,38 +15,46 @@ logger = logging.getLogger(__name__)
 class GoogleDriveService:
     def __init__(self):
         self.folder_id = os.getenv("GOOGLE_DRIVE_FOLDER_ID", "").strip()
-        self.credentials_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
+        self.client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+        self.client_secret = os.getenv("GOOGLE_CLIENT_SECRET", "").strip()
+        self.refresh_token = os.getenv("GOOGLE_REFRESH_TOKEN", "").strip()
+        
+        # Log limited info for debugging in Render
+        if self.folder_id:
+            logger.info(f"GoogleDriveService initialized with folder_id: {self.folder_id[:5]}...{self.folder_id[-5:]}")
+        else:
+            logger.warning("GoogleDriveService initialized WITHOUT GOOGLE_DRIVE_FOLDER_ID")
+            
         self.service = self._authenticate()
 
     def _authenticate(self):
-        """Authenticates using service account credentials from env or file."""
+        """Authenticates using OAuth2 Client ID, Secret, and Refresh Token."""
         try:
-            if self.credentials_json:
-                # If credentials_json starts with '{', it's likely the raw JSON string
-                if self.credentials_json.strip().startswith('{'):
-                    info = json.loads(self.credentials_json)
-                    creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
-                else:
-                    # Otherwise, treat it as a file path
-                    creds = service_account.Credentials.from_service_account_file(self.credentials_json, scopes=SCOPES)
-            else:
-                # Fallback to default file name if not in env
-                creds_path = "service_account.json"
-                if os.path.exists(creds_path):
-                    creds = service_account.Credentials.from_service_account_file(creds_path, scopes=SCOPES)
-                else:
-                    logger.warning("No Google Drive credentials found. Upload will fail.")
-                    return None
+            if not (self.client_id and self.client_secret and self.refresh_token):
+                logger.warning("Missing OAuth2 credentials (ID, Secret, or Token). Upload will fail.")
+                return None
+            
+            creds = Credentials(
+                token=None,  # Will be refreshed
+                refresh_token=self.refresh_token,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                token_uri="https://oauth2.googleapis.com/token",
+                scopes=SCOPES
+            )
+            
+            # Force refresh to ensure token is valid
+            creds.refresh(Request())
             
             return build('drive', 'v3', credentials=creds)
         except Exception as e:
-            logger.error(f"Failed to authenticate with Google Drive: {e}")
+            logger.error(f"Failed to authenticate with Google Drive OAuth2: {e}")
             return None
 
     def upload_file(self, file_stream: BytesIO, filename: str) -> dict:
         """Uploads a file stream to the specified Google Drive folder."""
         if not self.service:
-            return {"success": False, "error": "Google Drive service not authenticated"}
+            return {"success": False, "error": "Google Drive service not authenticated (check OAuth2 credentials)"}
 
         try:
             file_metadata = {
