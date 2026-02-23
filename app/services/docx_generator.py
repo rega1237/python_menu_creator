@@ -3,7 +3,6 @@ from io import BytesIO
 from docx import Document
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.section import WD_SECTION_VERTICAL_ALIGNMENT
 from app.schemas.menu import MenuRequest
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "template.docx")
@@ -38,7 +37,8 @@ def generate_menu_docx(request: MenuRequest) -> BytesIO:
         
     # Center content vertically for all sections
     for section in doc.sections:
-        section.vertical_alignment = WD_SECTION_VERTICAL_ALIGNMENT.CENTER
+        # Use low-level XML to ensure compatibility across python-docx versions
+        section._sectPr.vAlign_val = 'center'
         
     meals_count = len(request.all_meals)
     
