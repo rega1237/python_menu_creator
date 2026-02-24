@@ -39,11 +39,12 @@ class AppSheetService:
         
         try:
             logger.info(f"Sending callback to AppSheet for event_id: {event_id}")
+            logger.info(f"AppSheet Payload: {payload}")
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
             
             result = response.json()
-            logger.info(f"AppSheet response: {result}")
+            logger.info(f"AppSheet API Response: {result}")
             
             return {"success": True, "result": result}
             

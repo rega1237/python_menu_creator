@@ -78,10 +78,14 @@ class GoogleDriveService:
                 fields='id, webViewLink'
             ).execute()
             
+            view_link = file.get('webViewLink')
+            file_id = file.get('id')
+            logger.info(f"Successfully uploaded to Drive. ID: {file_id}, Link: {view_link}")
+            
             return {
                 "success": True,
-                "file_id": file.get('id'),
-                "view_link": file.get('webViewLink')
+                "file_id": file_id,
+                "view_link": view_link
             }
             
         except Exception as e:

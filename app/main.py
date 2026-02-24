@@ -1,4 +1,11 @@
 from fastapi import FastAPI, Response, Query
+import logging
+import json
+
+# Configure logging at the entry point
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+
 from app.schemas.menu import MenuRequest
 from app.services.general_sign_generator import generate_general_sign_docx
 from app.services.google_drive_service import drive_service
