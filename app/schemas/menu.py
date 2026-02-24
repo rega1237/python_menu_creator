@@ -12,5 +12,6 @@ class MenuData(BaseModel):
     items: List[SubCategoryItem]
 
 class MenuRequest(BaseModel):
+    event_id: str = "unknown"
     event_name: str = "event"
     all_meals: List[MenuData]

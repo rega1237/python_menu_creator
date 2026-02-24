@@ -2,6 +2,7 @@ from fastapi import FastAPI, Response, Query
 from app.schemas.menu import MenuRequest
 from app.services.general_sign_generator import generate_general_sign_docx
 from app.services.google_drive_service import drive_service
+from app.services.appsheet_service import appsheet_service
 
 app = FastAPI(title="Menu Creator Service")
 
@@ -23,6 +24,13 @@ async def generate_menu(
     if upload_to_drive:
         result = drive_service.upload_file(docx_stream, filename)
         if result["success"]:
+            # Callback to AppSheet
+            appsheet_result = appsheet_service.update_event_sign_link(
+                event_id=request.event_id,
+                view_link=result["view_link"]
+            )
+            result["appsheet_update"] = appsheet_result
+            
             import json
             return Response(
                 content=json.dumps(result),
