@@ -29,16 +29,22 @@ def format_paragraph(paragraph, text: str, font_name: str, size: int, bold: bool
     return run
 
 def generate_menu_docx(request: MenuRequest) -> BytesIO:
-    # Use the user-provided template if it exists, otherwise create a blank one
-    if os.path.exists(TEMPLATE_PATH):
-        doc = Document(TEMPLATE_PATH)
-    else:
-        doc = Document()
+    # Use the user-provided template. If not found, raise an error to indicate it
+    template_abspath = os.path.abspath(TEMPLATE_PATH)
+    if not os.path.exists(template_abspath):
+        raise FileNotFoundError(f"Template not found at {template_abspath}")
+        
+    doc = Document(template_abspath)
         
     # Center content vertically for all sections
     for section in doc.sections:
         # Use low-level XML to ensure compatibility across python-docx versions
         section._sectPr.vAlign_val = 'center'
+        
+    # Clear any existing paragraphs from the template (e.g., initial empty paragraphs)
+    for paragraph in doc.paragraphs:
+        p = paragraph._element
+        p.getparent().remove(p)
         
     meals_count = len(request.all_meals)
     
