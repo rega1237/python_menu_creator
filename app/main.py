@@ -32,10 +32,10 @@ async def generate_menu(
     if upload_to_drive:
         result = drive_service.upload_file(docx_stream, filename)
         if result["success"]:
-            # Callback to AppSheet
+            # Callback to AppSheet (using download_link for direct download in AppSheet)
             appsheet_result = appsheet_service.update_event_sign_link(
                 event_id=request.event_id,
-                view_link=result["view_link"]
+                view_link=result["download_link"]
             )
             result["appsheet_update"] = appsheet_result
             

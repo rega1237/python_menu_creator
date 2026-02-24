@@ -75,17 +75,21 @@ class GoogleDriveService:
             file = self.service.files().create(
                 body=file_metadata,
                 media_body=media,
-                fields='id, webViewLink'
+                fields='id, webViewLink, webContentLink'
             ).execute()
             
             view_link = file.get('webViewLink')
+            download_link = file.get('webContentLink')
             file_id = file.get('id')
-            logger.info(f"Successfully uploaded to Drive. ID: {file_id}, Link: {view_link}")
+            logger.info(f"Successfully uploaded to Drive. ID: {file_id}")
+            logger.info(f"View Link: {view_link}")
+            logger.info(f"Download Link: {download_link}")
             
             return {
                 "success": True,
                 "file_id": file_id,
-                "view_link": view_link
+                "view_link": view_link,
+                "download_link": download_link
             }
             
         except Exception as e:
