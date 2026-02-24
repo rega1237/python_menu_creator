@@ -28,7 +28,7 @@ def format_paragraph(paragraph, text: str, font_name: str, size: int, bold: bool
         run.font.color.rgb = color
     return run
 
-def generate_menu_docx(request: MenuRequest) -> BytesIO:
+def generate_general_sign_docx(request: MenuRequest) -> BytesIO:
     # Use the user-provided template. If not found, raise an error to indicate it
     template_abspath = os.path.abspath(TEMPLATE_PATH)
     if not os.path.exists(template_abspath):

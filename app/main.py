@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response, Query
 from app.schemas.menu import MenuRequest
-from app.services.docx_generator import generate_menu_docx
+from app.services.general_sign_generator import generate_general_sign_docx
 from app.services.google_drive_service import drive_service
 
 app = FastAPI(title="Menu Creator Service")
@@ -14,9 +14,11 @@ async def generate_menu(
     request: MenuRequest, 
     upload_to_drive: bool = Query(False, description="Si es True, sube el archivo a Google Drive y devuelve JSON con el link.")
 ):
-    docx_stream = generate_menu_docx(request)
+    docx_stream = generate_general_sign_docx(request)
     
-    filename = f"menu_{request.all_meals[0].categoria}_{request.all_meals[0].fecha}.docx".replace(" ", "_")
+    # Request event_name or fallback
+    safe_event_name = request.event_name.replace(" ", "_")
+    filename = f"Sign_general_{safe_event_name}.docx"
     
     if upload_to_drive:
         result = drive_service.upload_file(docx_stream, filename)
