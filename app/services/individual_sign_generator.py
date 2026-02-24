@@ -6,6 +6,8 @@ from docx.shared import Cm, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.section import WD_ORIENT
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from app.schemas.individual_menu import IndividualSignRequest
 
 logger = logging.getLogger(__name__)
@@ -51,10 +53,10 @@ def format_cell(cell, item):
     run.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
     
     # Diet Options
-    if item.diet_options:
+    if item.diet_options and item.diet_options.strip() and item.diet_options.strip() != '""' and item.diet_options.strip() != '"".""':
         diet_para = cell.add_paragraph()
         diet_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = diet_para.add_run(f"({item.diet_options.upper()})")
+        run = diet_para.add_run(f"({item.diet_options.strip().upper()})")
         run.font.name = "Arial"
         run.font.size = Pt(12)
         run.bold = True
@@ -81,6 +83,50 @@ def create_grid_page(doc):
     for col in table.columns:
         col.width = Cm(9) # Slightly wider than 8cm to fill page
         
+    # Apply borders to all cells
+    borders_xml = """
+        <w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+            <w:top w:val="single" w:sz="12" w:space="0" w:color="5a2d5a"/>
+            <w:left w:val="single" w:sz="12" w:space="0" w:color="5a2d5a"/>
+            <w:bottom w:val="single" w:sz="12" w:space="0" w:color="5a2d5a"/>
+            <w:right w:val="single" w:sz="12" w:space="0" w:color="5a2d5a"/>
+        </w:tcBorders>
+    """
+    for row in table.rows:
+        for cell in row.cells:
+            tcPr = cell._tc.get_or_add_tcPr()
+            tcBorders = OxmlElement('w:tcBorders')
+            
+            top = OxmlElement('w:top')
+            top.set(qn('w:val'), 'single')
+            top.set(qn('w:sz'), '12')
+            top.set(qn('w:space'), '0')
+            top.set(qn('w:color'), '5a2d5a')
+            
+            bottom = OxmlElement('w:bottom')
+            bottom.set(qn('w:val'), 'single')
+            bottom.set(qn('w:sz'), '12')
+            bottom.set(qn('w:space'), '0')
+            bottom.set(qn('w:color'), '5a2d5a')
+            
+            left = OxmlElement('w:left')
+            left.set(qn('w:val'), 'single')
+            left.set(qn('w:sz'), '12')
+            left.set(qn('w:space'), '0')
+            left.set(qn('w:color'), '5a2d5a')
+            
+            right = OxmlElement('w:right')
+            right.set(qn('w:val'), 'single')
+            right.set(qn('w:sz'), '12')
+            right.set(qn('w:space'), '0')
+            right.set(qn('w:color'), '5a2d5a')
+            
+            tcBorders.append(top)
+            tcBorders.append(bottom)
+            tcBorders.append(left)
+            tcBorders.append(right)
+            tcPr.append(tcBorders)
+        
     # Merge cells in the middle row for the center element
     table.cell(1, 0).merge(table.cell(1, 1))
     
@@ -104,24 +150,33 @@ def generate_individual_signs_docx(request: IndividualSignRequest) -> BytesIO:
     section.right_margin = Cm(1)
     
     items = []
-    for meal in request.meals:
-        if meal.menu_name and meal.menu_name.strip():
-            items.append(ItemData(
-                meal.menu_name.strip(), 
-                meal.menu_desc.strip() if meal.menu_desc else "", 
-                meal.menu_diet.strip() if meal.menu_diet else ""
-            ))
-            
-        for i in range(1, 11):
-            name = getattr(meal, f"menu_{i}_name")
-            if name and name.strip():
-                desc = getattr(meal, f"menu_{i}_desc")
-                diet = getattr(meal, f"menu_{i}_diet")
+    
+    def process_and_add_item(name, desc, diet):
+        if name and name.strip():
+            # Check if name contains commas and split it
+            if "," in name:
+                parts = [p.strip() for p in name.split(",") if p.strip()]
+                for part in parts:
+                    items.append(ItemData(
+                        part,
+                        desc.strip() if desc else "", 
+                        diet.strip() if diet else ""
+                    ))
+            else:
                 items.append(ItemData(
                     name.strip(), 
                     desc.strip() if desc else "", 
                     diet.strip() if diet else ""
                 ))
+
+    for meal in request.meals:
+        process_and_add_item(meal.menu_name, meal.menu_desc, meal.menu_diet)
+            
+        for i in range(1, 11):
+            name = getattr(meal, f"menu_{i}_name")
+            desc = getattr(meal, f"menu_{i}_desc")
+            diet = getattr(meal, f"menu_{i}_diet")
+            process_and_add_item(name, desc, diet)
     
     total_items = len(items)
     
@@ -151,11 +206,6 @@ def generate_individual_signs_docx(request: IndividualSignRequest) -> BytesIO:
             row, col = cell_map[idx]
             cell = table.cell(row, col)
             format_cell(cell, item)
-            
-            # Apply border (if not already in style)
-            # In python-docx, borders are tricky without manual XML or a style with borders.
-            # I'll rely on the table having some visible border or leave it to the template if we use one.
-            # For now, I'll just leave it and see if the user wants borders.
             
     # Save to memory stream
     docx_stream = BytesIO()
