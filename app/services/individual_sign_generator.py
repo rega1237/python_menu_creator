@@ -217,11 +217,19 @@ def generate_individual_signs_docx(request: IndividualSignRequest) -> BytesIO:
             inner_table.autofit = False
             inner_table.alignment = WD_TABLE_ALIGNMENT.CENTER
             
+            # Explicitly force 10cm width via XML (5670 dxa) to prevent stretching in merged columns
+            tblPr = inner_table._tbl.tblPr
+            tblW = OxmlElement('w:tblW')
+            tblW.set(qn('w:w'), '5670')
+            tblW.set(qn('w:type'), 'dxa')
+            tblPr.append(tblW)
+            
             # Fixed dimensions for the card
             inner_table.columns[0].width = Cm(10)
             inner_table.rows[0].height = Cm(5.5)
             
             inner_cell = inner_table.cell(0, 0)
+            inner_cell.width = Cm(10)
             
             # Apply borders to the nested table cell
             apply_borders_to_cell(inner_cell)
