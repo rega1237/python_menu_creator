@@ -155,12 +155,39 @@ def generate_individual_signs_docx(request: IndividualSignRequest) -> BytesIO:
         if name and name.strip():
             # Check if name contains commas and split it
             if "," in name:
-                parts = [p.strip() for p in name.split(",") if p.strip()]
-                for part in parts:
+                name_parts = [p.strip() for p in name.split(",") if p.strip()]
+                # If desc has commas, split it too, to map 1:1 with names. 
+                # Otherwise, treat it as empty or use the whole thing if it's only 1 part (which shouldn't happen if names > 1, but just in case)
+                desc_parts = []
+                if desc:
+                    desc_parts = [p.strip() for p in desc.split(",")]
+                
+                diet_parts = []
+                if diet:
+                    # Sometimes diet is "(GF), (VG)" or just "GF, VG". We split by comma if present.
+                    # But diet often applies to all, or is mapped 1:1. We assume 1:1 if it has commas.
+                    diet_parts = [p.strip() for p in diet.split(",")]
+
+                for i, part in enumerate(name_parts):
+                    # Try to get the matching description, fallback to empty string
+                    part_desc = desc_parts[i] if i < len(desc_parts) else ""
+                    # If there's only one description but many names, it might be a global description. 
+                    # But per user request, we want to split. If it's missing, leave it blank.
+                    if not part_desc and len(desc_parts) == 1:
+                         # Edge case: If there's exactly 1 description but 4 names, do we repeat or leave blank?
+                         # The user specifically complained it repeated. So we leave it blank if no 1:1 match.
+                         # Actually, wait. If `Dried Apricots, Dried Cramberri` is the desc, it splits to 2.
+                         # If `APRICOTS, CRAMBERRI` is the name, it splits to 2. Perfect match.
+                         part_desc = desc_parts[0] if len(desc_parts) == 1 else ""
+
+                    part_diet = diet_parts[i] if i < len(diet_parts) else ""
+                    if not part_diet and len(diet_parts) == 1:
+                        part_diet = diet_parts[0]
+                        
                     items.append(ItemData(
                         part,
-                        desc.strip() if desc else "", 
-                        diet.strip() if diet else ""
+                        part_desc, 
+                        part_diet
                     ))
             else:
                 items.append(ItemData(
