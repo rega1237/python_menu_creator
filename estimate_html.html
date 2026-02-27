@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta - &lt;&lt;[Client].[Nombre]&gt;&gt;</title>
+  <style>
+    /* Reset y configuración base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Configuración de páginas para PDF */
+    @page {
+      size: Letter;
+      margin: 0.5in 0.5in 0.5in 0.5in;
+    }
+
+    /* Portada sin márgenes */
+    @page :first {
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Open sands', sans-serif;
+      background-color: white;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    /* ===== PÁGINA DE PORTADA ===== */
+    .cover-page {
+      position: relative;
+      width: 100%;
+      min-height: 11in;
+      page-break-after: always;
+      background-color: white;
+      padding: 60px 40px 100px 40px;
+    }
+
+    .cover-logo {
+      width: 330px;
+      height: 150px;
+      margin-bottom: 40px;
+    }
+
+    .cover-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .cover-title-container {
+      position: absolute;
+      bottom: 100px;
+      left: 60px;
+      right: 60px;
+    }
+
+    .cover-title-container h1 {
+      font-size: 38px;
+      font-weight: bold;
+      color: #612d4b;
+      margin: 0 0 15px 0;
+      line-height: 1.1;
+    }
+
+    /* ===== HEADER REPETIBLE ===== */
+    .repeating-header {
+      display: none;
+      /* Oculto por defecto, solo visible en impresión */
+    }
+
+    .header-content {
+      position: relative;
+      width: 100%;
+      height: 110px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-image {
+      max-width: 260px;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: left top;
+    }
+
+    .contact-info {
+      position: absolute;
+      top: 15px;
+      right: 50px;
+      text-align: right;
+      font-size: 10px;
+      line-height: 1.4;
+      background-color: white;
+      padding: 5px 10px;
+      max-width: 200px;
+    }
+
+    .contact-info div {
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    .custom-link {
+      color: #333;
+      text-decoration: none;
+      font-size: 10px;
+    }
+
+    /* ===== FOOTER REPETIBLE ===== */
+    .repeating-footer {
+      display: none;
+      /* Oculto por defecto, solo visible en impresión */
+    }
+
+    .footer-content {
+      width: 180px;
+      height: 120px;
+      background-color: white;
+    }
+
+    .footer-logo {
+      width: 100%;
+      height: 100%;
+      padding: 5px;
+    }
+
+    .footer-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* ===== LAYOUT DE CONTENIDO ===== */
+    .content-layout {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .content-layout-sidebar {
+      display: table-cell;
+      width: 260px;
+      padding-right: 30px;
+      vertical-align: top;
+      padding-top: 50px;
+    }
+
+    .content-layout-main {
+      display: table-cell;
+      vertical-align: top;
+      padding-left: 20px;
+      font-size: 11.5px;
+    }
+
+    .content-layout-main p {
+      text-align: justify;
+      font-size: 12px;
+    }
+
+    /* ===== ESTILOS DEL SIDEBAR ===== */
+    .tagline {
+      font-size: 14px;
+      font-weight: bold;
+      color: #612d4b;
+      margin-bottom: 25px;
+      font-style: italic;
+    }
+
+    .sidebar-section {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .sidebar-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #612d4b;
+      margin-bottom: 6px;
+      text-align: left;
+    }
+
+    .sidebar-title2 {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 8px;
+    }
+
+    .sidebar-content {
+      font-size: 11px;
+      line-height: 1.4;
+      color: #333;
+      text-align: left;
+    }
+
+    .sidebar-content div {
+      margin-bottom: 2px;
+      text-align: left;
+    }
+
+    /* ===== CONTENIDO PRINCIPAL ===== */
+    .main-column p {
+      margin-bottom: 1.2em;
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: justify;
+    }
+
+    /* ===== FIRMA ===== */
+    .signature-section {
+      margin-top: 1rem;
+      page-break-inside: avoid;
+    }
+
+    .signature-line {
+      margin-top: 40px;
+      border-bottom: 1px solid #333;
+      width: 250px;
+    }
+
+    .signature-line2 {
+      margin-left: 50px;
+      border-bottom: 1px solid #222;
+      width: 250px;
+    }
+
+    .signature-text {
+      margin-top: 8px;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    /* ===== ESTILOS DEL MENÚ ===== */
+    .menu-event {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+      padding-top: 0;
+    }
+
+    .menu-event .sidebar-content,
+    .menu-event .sidebar-title {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+    }
+
+    .menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-category {
+      font-size: 14px;
+      font-weight: bold;
+      color: #612d4b;
+      margin: 15px 0 8px 0;
+      text-transform: uppercase;
+      text-align: left;
+      page-break-after: avoid;
+    }
+
+    .menu-item {
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      page-break-inside: avoid;
+      padding-right: 10px;
+    }
+
+    .menu-item-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 4px;
+      text-align: left;
+      text-decoration: underline;
+    }
+
+    .menu-item-description {
+      font-size: 11px;
+      line-height: 1.4;
+      color: #555;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+
+    .menu-item-details {
+      font-size: 11px;
+      color: #333;
+      text-align: left;
+      padding-left: 20px;
+    }
+
+    .menu-subcategory {
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    /* ===== SECCIÓN FINANCIERA ===== */
+    .financial-section {
+      margin-top: 20px;
+      page-break-inside: avoid;
+    }
+
+    .financial-section.interlineado {
+      line-height: 0.5 !important;
+    }
+
+    /* Interlineado reducido para secciones específicas */
+    .financial-section .financial-item {
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .financial-section .financial-fechalabor {
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .financial-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 12px;
+      padding: 3px 0;
+    }
+
+    .financial-section.interlineado .financial-item {
+      line-height: 0.5;
+      /* Ajusta este valor según tus necesidades */
+    }
+
+    .financial-fechalabor {
+      font-size: 12px;
+    }
+
+    .financial-total {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 2px solid #612d4b;
+      font-weight: bold;
+      font-size: 13px;
+      line-height: 1.1;
+    }
+
+    /* ===== SALTOS DE PÁGINA ===== */
+    .single-page {
+      page-break-after: always;
+    }
+
+    .page-content {
+      page-break-inside: always;
+    }
+
+    /* ===== ESTILOS ESPECÍFICOS PARA PÁGINAS DE MENÚ ===== */
+    .menu-page {
+      page-break-before: always;
+      page-break-inside: always;
+    }
+
+    /* Sidebar para páginas de menú - se repetirá en cada página */
+    .menu-page .content-layout-sidebar {
+      position: fixed;
+      left: 0;
+      top: 130px;
+      width: 260px;
+      height: calc(100vh - 270px);
+      background-color: white;
+      z-index: 100;
+      overflow: hidden;
+      page-break-inside: avoid;
+      padding-right: 30px;
+    }
+
+    /* Contenido principal con margen para el sidebar fijo - alineado con carta de presentación */
+    .menu-page .content-layout-main {
+      margin-top: 0px;
+      margin-left: 260px;
+      padding-left: 20px;
+      padding-right: 40px;
+      page-break-inside: auto;
+      min-height: calc(100vh - 260px);
+      width: calc(100% - 260px);
+      display: block;
+    }
+
+    /* Evitar que las categorías del menú se corten */
+    .menu-category {
+      page-break-after: avoid;
+      page-break-inside: avoid;
+    }
+
+    .menu-item {
+      page-break-inside: avoid;
+    }
+
+    /* ===== AJUSTES PARA IMPRESIÓN/PDF ===== */
+    @media print {
+
+      /* Mostrar header en todas las páginas EXCEPTO la primera */
+      .repeating-header {
+        display: block !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 150px;
+        z-index: 1000;
+        padding: 0;
+      }
+
+      /* Asegurar que el header se muestre en páginas de contenido */
+      .page-content .repeating-header,
+      .single-page .repeating-header {
+        display: block !important;
+      }
+
+      /* Ocultar header y footer en la primera página (portada) */
+      @page :first {
+        margin: 0;
+      }
+
+      /* Asegurar que los elementos fixed no aparezcan en la portada */
+      .cover-page {
+        position: relative;
+        z-index: 9999;
+      }
+
+      /* Mostrar footer en todas las páginas EXCEPTO la primera */
+      .repeating-footer {
+        display: block !important;
+        position: fixed;
+        bottom: 60px;
+        left: 0;
+        right: 0;
+        height: 160px;
+        padding: 0;
+        background: transparent;
+        z-index: 1000;
+      }
+
+      /* Contenido debajo del header (excepto portada) */
+      .page-content {
+        margin-top: 170px;
+        margin-bottom: 200px;
+      }
+
+      /* Estilos específicos para páginas de menú en impresión */
+      .menu-page {
+        margin-top: 170px;
+        margin-bottom: 200px;
+        page-break-before: auto;
+      }
+
+      /* Sidebar fijo en impresión para páginas de menú */
+      .menu-page .content-layout-sidebar {
+        position: fixed;
+        left: 0;
+        top: 170px;
+        width: 260px;
+        height: calc(100vh - 270px);
+        background-color: white;
+        z-index: 100;
+        overflow: hidden;
+        page-break-inside: avoid;
+        padding-right: 30px;
+      }
+
+      /* Contenido principal con margen para el sidebar fijo en impresión */
+      .menu-page .content-layout-main {
+        margin-top: 0px;
+        margin-left: 260px;
+        padding-left: 20px;
+        padding-right: 40px;
+        page-break-inside: auto;
+        width: calc(100% - 260px);
+        display: block;
+      }
+
+      /* Alinear el texto de contacto debajo de la imagen del header */
+      .header-content {
+        height: auto;
+        align-items: flex-start;
+      }
+
+      .contact-info {
+        position: static !important;
+        margin-top: 6px;
+        right: auto;
+        text-align: left;
+        background: transparent;
+        padding: 0;
+        max-width: 220px;
+      }
+
+      .header-image {
+        width: 260px;
+        height: auto;
+        object-position: left top;
+      }
+
+      .content-layout-main.short {
+        width: 260px;
+      }
+
+      /* La portada NO debe tener márgenes para header/footer */
+      .cover-page {
+        margin: 0 !important;
+        padding: 60px 40px 100px 40px;
+      }
+
+      /* Asegurar que el contenido de la portada no tenga márgenes extra */
+      .cover-page * {
+        margin-top: 0 !important;
+      }
+    }
+
+    .bold {
+      font-weight: 700;
+    }
+
+    .m-0 {
+      margin: 0 !important;
+    }
+  </style>
+</head>
+
+<body class="has-cover">
+
+  <!-- ========================================= -->
+  <!-- PÁGINA 1: PORTADA (sin header ni footer) -->
+  <!-- ========================================= -->
+  <div class="cover-page">
+    <div class="cover-logo">
+      <img src="https://drive.google.com/thumbnail?id=1G86uWc7EzjildOkQoMUc2hm6lzbYkOSk" alt="Logo Empresa">
+    </div>
+    <div class="cover-title-container">
+      <h1>Foodesign Conceptual Events Proposal</h1>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- HEADER REPETIBLE (aparece desde página 2 en adelante) -->
+  <!-- ========================================= -->
+  <div class="repeating-header">
+    <div class="header-content">
+      <img src="https://drive.google.com/thumbnail?id=1XHABV0yzIO_HP5TdM07UebLhPSjRcnE3" alt="Header Design"
+        class="header-image">
+      <div class="contact-info">
+        <div>o — 917.328.8583 / 973.743.1000</div>
+        <div>e — <a href="mailto:hi@foodesignce.com" class="custom-link">hi@foodesignce.com</a></div>
+        <div>56 Commerce St, Garfield</div>
+        <div>New Jersey, 07026</div>
+        <div>w — <a href="https://foodesignce.com" class="custom-link" target="_blank">foodesignce.com</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- FOOTER REPETIBLE (aparece desde página 2 en adelante) -->
+  <!-- ========================================= -->
+  <div class="repeating-footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <img src="https://drive.google.com/thumbnail?id=1G86uWc7EzjildOkQoMUc2hm6lzbYkOSk" alt="Logo Empresa">
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- PÁGINA 2: CARTA DE PRESENTACIÓN -->
+  <!-- ========================================= -->
+  <div class="single-page page-content">
+    <div class="content-layout">
+      <div class="content-layout-sidebar">
+        <div class="tagline">We create everlasting moments</div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client].[Nombre]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Adress].[Adress]&gt;&gt;</div>
+            <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client Representative</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Representative].[Email_representative]&gt;&gt;</div>
+            <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Event Details</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Event]&gt;&gt;</div>
+            <div>&lt;&lt;[Event adress]&gt;&gt;</div>
+            <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-layout-main">
+        <p style="padding-top: 50px">Dear &lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</p><br>
+
+        <p>Thank you for the opportunity, to provide our services for your events. We look forward to sharing our
+          services with you and your guests. Booking staff, planning and directing an event can be stressful. Therefore,
+          we promise to do everything we can to ease the burden on you.</p><br>
+
+        <p>We have taken all of your concerns and requests into consideration as we developed this proposal and quote.
+          We would like to assure you that our wait staff, catering and event services will meet your high food
+          standards and suit your personal tastes.</p><br>
+
+        <p>In this proposal, we have only included the services that you have selected. Please feel free to notify us if
+          you have any concerns or additional services that you would like to request. We hope that you will find this
+          proposal to your liking. We are looking forward to helping provide all your guests with an enjoyable and
+          unforgettable experience.</p><br>
+
+        <p>Sincerely,</p>
+
+        <div class="signature-section">
+          <div class="signature-line"></div>
+          <div class="signature-text">
+            Raul Gamboa,<br>
+            Foodesign Conceptual Events.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- SECCIÓN DE MENÚ - ESTRUCTURA ÚNICA PARA MÚLTIPLES PÁGINAS -->
+  <!-- ========================================= -->
+  <div class="page-content menu-page">
+    <div class="content-layout">
+      <!-- SIDEBAR REPETIBLE - SE MOSTRARÁ EN CADA PÁGINA DEL MENÚ -->
+      <div class="content-layout-sidebar">
+        <div class="tagline">We create everlasting moments</div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client].[Nombre]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Adress].[Adress]&gt;&gt;</div>
+            <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client Representative</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Representative].[Email_representative]&gt;&gt;</div>
+            <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Event Details</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Event]&gt;&gt;</div>
+            <div>&lt;&lt;[Event adress]&gt;&gt;</div>
+            <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENIDO PRINCIPAL DEL MENÚ -->
+      <div class="content-layout-main">
+        <div class="menu-event">
+          <div class="sidebar-title">&lt;&lt;[Event]&gt;&gt;</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="menu-section">
+          <div class="sidebar-title">Dietary Restrictions</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Dietary Restrictions][Name]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="menu-section">
+
+          <!-- INICIO DEL LOOP DE APPSHEET -->
+          <p>&lt;&lt;Start:ORDERBY([Related BDMeals],[Order])&gt;&gt;</p>
+
+          <!-- Encabezado combinado de fecha -->
+          <p>&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
+          
+          <p>&lt;&lt;IF:ISNOTBLANK([Dietary Restrictions])&gt;&gt;</p>
+          <div class="sidebar-title">Dietary Restrictions</div>
+          <div>
+            <div>&lt;&lt;[Dietary Restrictions][Name]&gt;&gt;</div>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <div class="sidebar-title">MENU</div>
+          <strong>&lt;&lt;[Fechameals]&gt;&gt;</strong><br>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <span class="menu-category">&lt;&lt;[Category].[Name]&gt;&gt;: </span> 
+          <p>&lt;&lt;IF:OR(ISNOTBLANK([Hora]), ISNOTBLANK([Hora Salida]))&gt;&gt;</p>
+          <span>&lt;&lt;TEXT([Hora],"h:mm AM/PM")&gt;&gt; to &lt;&lt;TEXT([Hora Salida],"h:mm AM/PM")&gt;&gt;</span>
+            <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+          <div class="menu-item">
+            <div class="menu-item-description">&lt;&lt;[Description]&gt;&gt;</div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=1)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 1]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado]&gt;&gt;</div>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=2)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 1].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 2]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado1]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=3)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 2].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 3]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 2]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=4)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 3].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 4]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 3]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=5)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 4].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 5]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 4]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=6)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 5].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 6]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 5]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=7)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 6].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 7]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 6]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=8)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 7].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 8]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 7]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=9)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 8].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 9]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 8]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=10)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 9].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 10]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 9]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=11)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 10].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 11]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 10]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+
+            <div class="menu-subcategory">
+              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=12)&gt;&gt;</p>
+              <div class="menu-item-title">&lt;&lt;[Subcategory 11].[Name]&gt;&gt;</div>
+              <div class="menu-item-description">&lt;&lt;[Description 12]&gt;&gt;</div>
+              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 11]&gt;&gt;</div>
+              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            </div>
+          </div>
+          <p>&lt;&lt;End&gt;&gt;</p>
+          <!-- FIN DEL LOOP DE APPSHEET -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- PÁGINAS ADICIONALES DEL MENÚ (TEMPLATE PARA REPETICIÓN) -->
+  <!-- ========================================= -->
+  <!-- Esta sección se repetirá automáticamente cuando el contenido del menú requiera más páginas -->
+  <div class="page-content menu-page">
+    <div class="content-layout">
+      <!-- SIDEBAR REPETIBLE - IDÉNTICO AL DE LA PRIMERA PÁGINA -->
+      <div class="content-layout-sidebar">
+        <div class="tagline">We create everlasting moments</div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client].[Nombre]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Adress].[Adress]&gt;&gt;</div>
+            <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client Representative</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Representative].[Email_representative]&gt;&gt;</div>
+            <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Event Details</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Event]&gt;&gt;</div>
+            <div>&lt;&lt;[Event adress]&gt;&gt;</div>
+            <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENIDO PRINCIPAL - CONTINUACIÓN DEL MENÚ -->
+      <!-- <div class="content-layout-main"> -->
+        <!-- AppSheet insertará automáticamente el contenido adicional del menú aquí -->
+        <!-- cuando el contenido de la primera página sea demasiado largo -->
+      <!-- </div> -->
+    </div>
+  </div>
+
+  <!-- Salto de página para comenzar la sección de servicios -->
+  <div style="page-break-after: always;"></div>
+
+  <!-- ========================================= -->
+  <!-- PÁGINA: PROPUESTA DE SERVICIOS -->
+  <!-- ========================================= -->
+  <div class="page-content">
+    <div class="content-layout">
+      <div class="content-layout-sidebar">
+        <div class="tagline">We create everlasting moments</div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client].[Nombre]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Adress].[Adress]&gt;&gt;</div>
+            <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client Representative</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Representative].[Email_representative]&gt;&gt;</div>
+            <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Event Details</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Event]&gt;&gt;</div>
+            <div>&lt;&lt;[Event adress]&gt;&gt;</div>
+            <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-layout-main">
+        <div class="menu-section">
+          <div class="sidebar-title">PROPOSAL OF SERVICES</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+          </div>
+        </div>
+
+        <!-- ===== BLOQUE DE FOOD SERVICES AGRUPADO ===== -->
+        <p>&lt;&lt;IF:(COUNT([Related BDMeals])>0)&gt;&gt;</p>
+        <div class="financial-section">
+          <div class="sidebar-title">Food Service</div>
+          <div class="sidebar-content" style="margin-bottom: 15px;">
+            Based on &lt;&lt;[Guest]&gt;&gt; Guests
+          </div>
+
+          <p>&lt;&lt;Start:ORDERBY([Related BDMeals],[Order])&gt;&gt;</p>
+
+          <!-- Encabezado combinado de fecha -->
+          <p>&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
+          <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+            <span class="bold">&lt;&lt;[Fechameals]&gt;&gt;</span>
+          </div>
+          <div><strong>&lt;&lt;TEXT([Total Food por dia])&gt;&gt;</strong></div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <div class="financial-item">
+            <span>&lt;&lt;[CategoryPrecioGuest]&gt;&gt;</span>
+            <p>&lt;&lt;IF:([Provide by the client]=FALSE)&gt;&gt;</p>
+                <span>&lt;&lt;TEXT([TotalCategoryPrecio])&gt;&gt;</span>
+            <p>&lt;&lt;ENDIF&gt;&gt;</p>
+            <p>&lt;&lt;IF:([Provide by the client]=TRUE)&gt;&gt;</p>
+                <span>Provide by the client</span>
+            <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          </div>
+          <p>&lt;&lt;End&gt;&gt;</p>
+        </div>
+        <p>&lt;&lt;ENDIF&gt;&gt;</p>
+        <!-- ===== FIN BLOQUE ===== -->
+
+        <!-- ===== BLOQUE DE LABOR SERVICE FEES AGRUPADO ===== -->
+        <p>&lt;&lt;IF:(COUNT([Related Labor Services])>0)&gt;&gt;</p>
+        <div class="financial-section">
+          <div class="sidebar-title">Labor Service Fees</div>
+
+          <p>&lt;&lt;Start:ORDERBY([Related Labor Services],[Order])&gt;&gt;</p>
+
+          <!-- Encabezado combinado de fecha y horas -->
+          <p class="m-0">&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
+          <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+            <span class="bold">&lt;&lt;[FechaLaborServices]&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p class="m-0">&lt;&lt;IF:([Show Hours Header]=TRUE)&gt;&gt;</p>
+          <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+            <p>Staff suggested based on &lt;&lt;[Hours]&gt;&gt; hours of labor</p>
+          </div>
+          <div class="financial-item">
+            <span>&lt;&lt;[NombresLaborService]&gt;&gt;<br><br><strong>&lt;&lt;TEXT([TOTAL LABOR SERVICES POR HORAS])&gt;&gt;</strong></span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+          <p>&lt;&lt;End&gt;&gt;</p>
+        </div>
+        <p>&lt;&lt;ENDIF&gt;&gt;</p>
+        <!-- ===== FIN BLOQUE ===== -->
+
+        <!-- ===== BLOQUE DE EXTRAS EVENTS AGRUPADO ===== -->
+        <p>&lt;&lt;IF:(COUNT([Related BDExtras Events])>0)&gt;&gt;</p>
+        <div class="financial-section">
+          <div class="sidebar-title">Extras Services</div>
+
+          <p>&lt;&lt;Start:ORDERBY([Related BDExtras Events],[Order])&gt;&gt;</p>
+
+          <!-- Encabezado combinado de fecha -->
+          <p>&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
+          <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+            <p class="bold">&lt;&lt;[FechaExtrasEvents]&gt;&gt;</p>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p>&lt;&lt;IF:([Show Rentals Header]=TRUE)&gt;&gt;</p>
+          <span><stong>Sales</stong></span>
+          <div class="financial-item">
+            <span>&lt;&lt;[NombreExtaServiceEventsFALSE]&gt;&gt;<br><br><strong>&lt;&lt;TEXT([Total Extras Events False])&gt;&gt;</strong></span><br><br>
+            </div>
+            <p>&lt;&lt;EndIF&gt;&gt;</p>
+
+            <p>&lt;&lt;IF:([Show Rentals Header True]=TRUE)&gt;&gt;</p>
+            <span><stong>Rentals</stong></span>
+          <div class="financial-item">
+            <span>&lt;&lt;[NombreExtrasEventsServices]&gt;&gt;<br><br><strong>&lt;&lt;TEXT([Total Extras Evenst True])&gt;&gt;</strong></span>
+            </div>
+          
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p>&lt;&lt;If:([Provide by the client]=TRUE)&gt;&gt;</p>
+            <span>&lt;&lt;[Name]&gt;&gt;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Provide by the client</span>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p>&lt;&lt;End&gt;&gt;</p>
+        </div>
+        <p>&lt;&lt;EndIF&gt;&gt;</p>
+        <!-- ===== FIN BLOQUE ===== -->
+
+        <div class="financial-section interlineado" style="margin-top: 30px;">
+          <div class="financial-item item-total">
+            <span>Food</span>
+            <span>&lt;&lt;TEXT([TotalFoodService])&gt;&gt;</span>
+          </div>
+          <div class="financial-item">
+            <span>Labor Cost</span>
+            <span>&lt;&lt;TEXT([Total Labor Cost])&gt;&gt;</span>
+          </div>
+          <div class="financial-item">
+            <span>Extras Services</span>
+            <span>&lt;&lt;TEXT([TotalExtrasEvents])&gt;&gt;</span>
+          </div>
+          <div class="financial-item">
+            <span>&lt;&lt;[Tax].[Tax]&gt;&gt; &lt;&lt;[Tax].[Name]&gt;&gt;</span>
+            <span>&lt;&lt;TEXT([TOTALtax])&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;IF:(COUNT(SELECT(BDExtras Events[ID],[Rentals]=FALSE))>0)&gt;&gt;</p>
+          <div class="financial-item">
+            <span>Extras Services</span>
+            <span>&lt;&lt;TEXT([TotalExtraeventsSales])&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <div class="financial-item">
+            <span>&lt;&lt;[Service Charge]&gt;&gt;Service Charge</span>
+            <span>&lt;&lt;TEXT([TotalServiceCharge])&gt;&gt;</span>
+          </div>
+          <p class="m-0">&lt;&lt;IF:([Discount]&gt;0)&gt;&gt;</p>
+          <div class="financial-item">
+            <span>Discount</span>
+            <span>-&lt;&lt;TEXT([Discount])&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p class="m-0">&lt;&lt;IF:([Donation]&gt;0)&gt;&gt;</p>
+          <div class="financial-item">
+            <span>Donation</span>
+            <span>-&lt;&lt;TEXT([Donation])&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p class="m-0">&lt;&lt;IF:([Credit Car]&gt;0)&gt;&gt;</p>
+          <div class="financial-item">
+            <span>Credit Card</span>
+            <span>&lt;&lt;TEXT([Total CreditCard])&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p class="m-0">&lt;&lt;IF:([Graturity]&gt;0)&gt;&gt;</p>
+          <div class="financial-item">
+            <span>Gratuity</span>
+            <span>&lt;&lt;TEXT([Graturity])&gt;&gt;</span>
+          </div>
+          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <div class="financial-total">
+            <span>Total Estimate</span>
+            <span>&lt;&lt;TEXT([Total])&gt;&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salto de página para comenzar la sección de Explanation of Fees -->
+  <div style="page-break-after: always;"></div>
+
+  <!-- ========================================= -->
+  <!-- PÁGINA: Explanation of Fees -->
+  <!-- ========================================= -->
+  <div class="page-content">
+    <div class="content-layout">
+      <div class="content-layout-sidebar">
+        <div class="tagline">We create everlasting moments</div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client].[Nombre]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Adress].[Adress]&gt;&gt;</div>
+            <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Client Representative</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</div>
+            <div>&lt;&lt;[Client Representative].[Email_representative]&gt;&gt;</div>
+            <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Event Details</div>
+          <div class="sidebar-content">
+            <div>&lt;&lt;[Event]&gt;&gt;</div>
+            <div>&lt;&lt;[Event adress]&gt;&gt;</div>
+            <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-layout-main">
+        <div class="sidebar-title">Explanation of Fees</div>
+        <div class="sidebar-title2">Event Planning Service</div>
+
+        <p>If a client resquets that the caterer coordinate the venue rental &amp; décor, entertainment, photography,
+          valet parking, flower arranging, or other aspects of planning the event, there will be a small fee charged for
+          this service to account for the labor needed to plan the event as agreed upon in writing by the parties at the
+          time of such request.</p>
+
+        <div class="sidebar-title2">Delivery Fee</div>
+
+        <p>Not Applicable</p>
+
+        <div class="sidebar-title2">Service Charge</div>
+
+        <p>A service charge of &lt;&lt;[Service Charge]&gt;&gt; is Indicated in your proposal of service.This fee covers
+          all administration,
+          insurance fees, transportation, site visits, trucking, &amp; supplemental costs associated with the event
+          planning.</p>
+
+        <div class="sidebar-title2">Gratuities</div>
+
+        <p>Gratuities are not included in the proposal and are at the sole discretion of the client.</p>
+
+        <div class="sidebar-title2">Taxes and Insurance</div>
+
+        <p>All prices are subject to a &lt;&lt;[Service Charge]&gt;&gt; service and &lt;&lt;[Tax].[Tax]&gt;&gt;
+          &lt;&lt;[Tax].[Name]&gt;&gt;.</p><br>
+
+        <div class="sidebar-title">Governing Terms</div>
+
+        <p>Foodesign Conceptual Events and the Client acknowledge and agree that this proposal is governed by the Master
+          Caterer Agreement executed between the parties.</p><br>
+
+        <div class="sidebar-title">Acceptance By Client</div><br>
+
+        <p>The undersigned, as a duly authorized representative of the Client, &lt;&lt;[Client].[Nombre]&gt;&gt;, hereby
+          contract the services of Foodesign Conceptual Events as listed and quoted in this proposal on behalf of the
+          Client according to the terms and conditions herein.</p>
+
+        <div class="signature-section">
+          <div class="sidebar-title2">Signed:</div>
+          <div class="signature-line2"></div>
+        </div>
+
+        <div class="signature-section">
+          <div class="sidebar-title2">Name:</div>
+          <div class="signature-line2"></div>
+        </div>
+
+        <div class="signature-section">
+          <div class="sidebar-title2">Date:</div>
+          <div class="signature-line2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

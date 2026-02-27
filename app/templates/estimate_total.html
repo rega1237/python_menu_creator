@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta - {{ client.name }}</title>
+    <style>
+        /* Reset y configuración base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Configuración de páginas para PDF */
+        @page {
+            size: Letter;
+            margin: 0.5in 0.5in 0.5in 0.5in;
+        }
+
+        /* Portada sin márgenes */
+        @page :first {
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Open sands', sans-serif;
+            background-color: white;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* ===== PÁGINA DE PORTADA ===== */
+        .cover-page {
+            position: relative;
+            width: 100%;
+            min-height: 11in;
+            page-break-after: always;
+            background-color: white;
+            padding: 60px 40px 100px 40px;
+        }
+
+        .cover-logo {
+            width: 330px;
+            height: 150px;
+            margin-bottom: 40px;
+        }
+
+        .cover-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .cover-title-container {
+            position: absolute;
+            bottom: 100px;
+            left: 60px;
+            right: 60px;
+        }
+
+        .cover-title-container h1 {
+            font-size: 38px;
+            font-weight: bold;
+            color: #612d4b;
+            margin: 0 0 15px 0;
+            line-height: 1.1;
+        }
+
+        /* ===== HEADER REPETIBLE ===== */
+        .repeating-header {
+            display: none;
+            /* Oculto por defecto, solo visible en impresión */
+        }
+
+        .header-content {
+            position: relative;
+            width: 100%;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-image {
+            max-width: 260px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: left top;
+        }
+
+        .contact-info {
+            position: absolute;
+            top: 15px;
+            right: 50px;
+            text-align: right;
+            font-size: 10px;
+            line-height: 1.4;
+            background-color: white;
+            padding: 5px 10px;
+            max-width: 200px;
+        }
+
+        .contact-info div {
+            margin-bottom: 2px;
+            white-space: nowrap;
+        }
+
+        .custom-link {
+            color: #333;
+            text-decoration: none;
+            font-size: 10px;
+        }
+
+        /* ===== FOOTER REPETIBLE ===== */
+        .repeating-footer {
+            display: none;
+            /* Oculto por defecto, solo visible en impresión */
+        }
+
+        .footer-content {
+            width: 180px;
+            height: 120px;
+            background-color: white;
+        }
+
+        .footer-logo {
+            width: 100%;
+            height: 100%;
+            padding: 5px;
+        }
+
+        .footer-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* ===== LAYOUT DE CONTENIDO ===== */
+        .content-layout {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .content-layout-sidebar {
+            display: table-cell;
+            width: 260px;
+            padding-right: 30px;
+            vertical-align: top;
+            padding-top: 50px;
+        }
+
+        .content-layout-main {
+            display: table-cell;
+            vertical-align: top;
+            padding-left: 20px;
+            font-size: 11.5px;
+        }
+
+        .content-layout-main p {
+            text-align: justify;
+            font-size: 12px;
+        }
+
+        /* ===== ESTILOS DEL SIDEBAR ===== */
+        .tagline {
+            font-size: 14px;
+            font-weight: bold;
+            color: #612d4b;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #612d4b;
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        .sidebar-title2 {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 8px;
+        }
+
+        .sidebar-content {
+            font-size: 11px;
+            line-height: 1.4;
+            color: #333;
+            text-align: left;
+        }
+
+        .sidebar-content div {
+            margin-bottom: 2px;
+            text-align: left;
+        }
+
+        /* ===== CONTENIDO PRINCIPAL ===== */
+        .main-column p {
+            margin-bottom: 1.2em;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        /* ===== FIRMA ===== */
+        .signature-section {
+            margin-top: 1rem;
+            page-break-inside: avoid;
+        }
+
+        .signature-line {
+            margin-top: 40px;
+            border-bottom: 1px solid #333;
+            width: 250px;
+        }
+
+        .signature-line2 {
+            margin-left: 50px;
+            border-bottom: 1px solid #222;
+            width: 250px;
+        }
+
+        .signature-text {
+            margin-top: 8px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        /* ===== ESTILOS DEL MENÚ ===== */
+        .menu-event {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-top: 0;
+        }
+
+        .menu-event .sidebar-content,
+        .menu-event .sidebar-title {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            text-align: center;
+        }
+
+        .menu-section {
+            margin-bottom: 20px;
+        }
+
+        .menu-category {
+            font-size: 14px;
+            font-weight: bold;
+            color: #612d4b;
+            margin: 15px 0 8px 0;
+            text-transform: uppercase;
+            text-align: left;
+            page-break-after: avoid;
+        }
+
+        .menu-item {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            page-break-inside: avoid;
+            padding-right: 10px;
+        }
+
+        .menu-item-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+            text-align: left;
+            text-decoration: underline;
+        }
+
+        .menu-item-description {
+            font-size: 11px;
+            line-height: 1.4;
+            color: #555;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        .menu-item-details {
+            font-size: 11px;
+            color: #333;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .menu-subcategory {
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        /* ===== SECCIÓN FINANCIERA ===== */
+        .financial-section {
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+
+        .financial-section.interlineado {
+            line-height: 0.5 !important;
+        }
+
+        /* Interlineado reducido para secciones específicas */
+        .financial-section .financial-item {
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .financial-section .financial-fechalabor {
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .financial-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 12px;
+            padding: 3px 0;
+        }
+
+        .financial-section.interlineado .financial-item {
+            line-height: 0.5;
+            /* Ajusta este valor según tus necesidades */
+        }
+
+        .financial-fechalabor {
+            font-size: 12px;
+        }
+
+        .financial-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 2px solid #612d4b;
+            font-weight: bold;
+            font-size: 13px;
+            line-height: 1.1;
+        }
+
+        /* ===== SALTOS DE PÁGINA ===== */
+        .single-page {
+            page-break-after: always;
+        }
+
+        .page-content {
+            page-break-inside: always;
+        }
+
+        /* ===== ESTILOS ESPECÍFICOS PARA PÁGINAS DE MENÚ ===== */
+        .menu-page {
+            page-break-before: always;
+            page-break-inside: always;
+        }
+
+        /* Sidebar para páginas de menú - se repetirá en cada página */
+        .menu-page .content-layout-sidebar {
+            position: fixed;
+            left: 0;
+            top: 130px;
+            width: 260px;
+            height: calc(100vh - 270px);
+            background-color: white;
+            z-index: 100;
+            overflow: hidden;
+            page-break-inside: avoid;
+            padding-right: 30px;
+        }
+
+        /* Contenido principal con margen para el sidebar fijo - alineado con carta de presentación */
+        .menu-page .content-layout-main {
+            margin-top: 0px;
+            margin-left: 260px;
+            padding-left: 20px;
+            padding-right: 40px;
+            page-break-inside: auto;
+            min-height: calc(100vh - 260px);
+            width: calc(100% - 260px);
+            display: block;
+        }
+
+        /* Evitar que las categorías del menú se corten */
+        .menu-category {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+        }
+
+        .menu-item {
+            page-break-inside: avoid;
+        }
+
+        /* ===== AJUSTES PARA IMPRESIÓN/PDF ===== */
+        @media print {
+
+            /* Mostrar header en todas las páginas EXCEPTO la primera */
+            .repeating-header {
+                display: block !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 150px;
+                z-index: 1000;
+                padding: 0;
+            }
+
+            /* Asegurar que el header se muestre en páginas de contenido */
+            .page-content .repeating-header,
+            .single-page .repeating-header {
+                display: block !important;
+            }
+
+            /* Ocultar header y footer en la primera página (portada) */
+            @page :first {
+                margin: 0;
+            }
+
+            /* Asegurar que los elementos fixed no aparezcan en la portada */
+            .cover-page {
+                position: relative;
+                z-index: 9999;
+            }
+
+            /* Mostrar footer en todas las páginas EXCEPTO la primera */
+            .repeating-footer {
+                display: block !important;
+                position: fixed;
+                bottom: 60px;
+                left: 0;
+                right: 0;
+                height: 160px;
+                padding: 0;
+                background: transparent;
+                z-index: 1000;
+            }
+
+            /* Contenido debajo del header (excepto portada) */
+            .page-content {
+                margin-top: 170px;
+                margin-bottom: 200px;
+            }
+
+            /* Estilos específicos para páginas de menú en impresión */
+            .menu-page {
+                margin-top: 170px;
+                margin-bottom: 200px;
+                page-break-before: auto;
+            }
+
+            /* Sidebar fijo en impresión para páginas de menú */
+            .menu-page .content-layout-sidebar {
+                position: fixed;
+                left: 0;
+                top: 170px;
+                width: 260px;
+                height: calc(100vh - 270px);
+                background-color: white;
+                z-index: 100;
+                overflow: hidden;
+                page-break-inside: avoid;
+                padding-right: 30px;
+            }
+
+            /* Contenido principal con margen para el sidebar fijo en impresión */
+            .menu-page .content-layout-main {
+                margin-top: 0px;
+                margin-left: 260px;
+                padding-left: 20px;
+                padding-right: 40px;
+                page-break-inside: auto;
+                width: calc(100% - 260px);
+                display: block;
+            }
+
+            /* Alinear el texto de contacto debajo de la imagen del header */
+            .header-content {
+                height: auto;
+                align-items: flex-start;
+            }
+
+            .contact-info {
+                position: static !important;
+                margin-top: 6px;
+                right: auto;
+                text-align: left;
+                background: transparent;
+                padding: 0;
+                max-width: 220px;
+            }
+
+            .header-image {
+                width: 260px;
+                height: auto;
+                object-position: left top;
+            }
+
+            .content-layout-main.short {
+                width: 260px;
+            }
+
+            /* La portada NO debe tener márgenes para header/footer */
+            .cover-page {
+                margin: 0 !important;
+                padding: 60px 40px 100px 40px;
+            }
+
+            /* Asegurar que el contenido de la portada no tenga márgenes extra */
+            .cover-page * {
+                margin-top: 0 !important;
+            }
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        .m-0 {
+            margin: 0 !important;
+        }
+    </style>
+</head>
+
+<body class="has-cover">
+
+    <!-- ========================================= -->
+    <!-- PÁGINA 1: PORTADA (sin header ni footer) -->
+    <!-- ========================================= -->
+    <div class="cover-page">
+        <div class="cover-logo">
+            <img src="https://drive.google.com/thumbnail?id=1G86uWc7EzjildOkQoMUc2hm6lzbYkOSk" alt="Logo Empresa">
+        </div>
+        <div class="cover-title-container">
+            <h1>Foodesign Conceptual Events Proposal</h1>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- HEADER REPETIBLE (aparece desde página 2 en adelante) -->
+    <!-- ========================================= -->
+    <div class="repeating-header">
+        <div class="header-content">
+            <img src="https://drive.google.com/thumbnail?id=1XHABV0yzIO_HP5TdM07UebLhPSjRcnE3" alt="Header Design"
+                class="header-image">
+            <div class="contact-info">
+                <div>o — 917.328.8583 / 973.743.1000</div>
+                <div>e — <a href="mailto:hi@foodesignce.com" class="custom-link">hi@foodesignce.com</a></div>
+                <div>56 Commerce St, Garfield</div>
+                <div>New Jersey, 07026</div>
+                <div>w — <a href="https://foodesignce.com" class="custom-link" target="_blank">foodesignce.com</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- FOOTER REPETIBLE (aparece desde página 2 en adelante) -->
+    <!-- ========================================= -->
+    <div class="repeating-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="https://drive.google.com/thumbnail?id=1G86uWc7EzjildOkQoMUc2hm6lzbYkOSk" alt="Logo Empresa">
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- PÁGINA 2: CARTA DE PRESENTACIÓN -->
+    <!-- ========================================= -->
+    <div class="single-page page-content">
+        <div class="content-layout">
+            <!-- MAIN SIDEBAR MACRO for reuse -->
+            {% macro render_sidebar() %}
+            <div class="content-layout-sidebar">
+                <div class="tagline">We create everlasting moments</div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Client</div>
+                    <div class="sidebar-content">
+                        <div>{{ client.name }}</div>
+                        <div>{{ client.address }}</div>
+                        <div>{{ client.email }}</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Client Representative</div>
+                    <div class="sidebar-content">
+                        <div>{{ client_representative.name }}</div>
+                        <div>{{ client_representative.email }}</div>
+                        <div>Ph: {{ client_representative.formatted_phone }}</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Event Details</div>
+                    <div class="sidebar-content">
+                        <div>{{ event.name }}</div>
+                        <div>{{ event.address }}</div>
+                        <div>Event Code: {{ event.code }}</div>
+                        <div>Start: {{ event.date_formatted }}</div>
+                        <div>End: {{ event.end_date_formatted }}</div>
+                        <div>{{ event.guests }} Guests</div>
+                    </div>
+                </div>
+            </div>
+            {% endmacro %}
+
+            {{ render_sidebar() }}
+
+            <div class="content-layout-main">
+                <p style="padding-top: 50px">Dear {{ client_representative.name }}</p><br>
+
+                <p>Thank you for the opportunity, to provide our services for your events. We look forward to sharing
+                    our
+                    services with you and your guests. Booking staff, planning and directing an event can be stressful.
+                    Therefore,
+                    we promise to do everything we can to ease the burden on you.</p><br>
+
+                <p>We have taken all of your concerns and requests into consideration as we developed this proposal and
+                    quote.
+                    We would like to assure you that our wait staff, catering and event services will meet your high
+                    food
+                    standards and suit your personal tastes.</p><br>
+
+                <p>In this proposal, we have only included the services that you have selected. Please feel free to
+                    notify us if
+                    you have any concerns or additional services that you would like to request. We hope that you will
+                    find this
+                    proposal to your liking. We are looking forward to helping provide all your guests with an enjoyable
+                    and
+                    unforgettable experience.</p><br>
+
+                <p>Sincerely,</p>
+
+                <div class="signature-section">
+                    <div class="signature-line"></div>
+                    <div class="signature-text">
+                        Raul Gamboa,<br>
+                        Foodesign Conceptual Events.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- SECCIÓN DE MENÚ - ESTRUCTURA ÚNICA PARA MÚLTIPLES PÁGINAS -->
+    <!-- ========================================= -->
+    <div class="page-content menu-page">
+        <div class="content-layout">
+            {{ render_sidebar() }}
+
+            <!-- CONTENIDO PRINCIPAL DEL MENÚ -->
+            <div class="content-layout-main">
+                <div class="menu-event">
+                    <div class="sidebar-title">{{ event.name }}</div>
+                    <div class="sidebar-content">
+                        <div>{{ event.date_formatted }}</div>
+                    </div>
+                </div>
+
+                {% if event.dietary_restrictions %}
+                <div class="menu-section">
+                    <div class="sidebar-title">Dietary Restrictions</div>
+                    <div class="sidebar-content">
+                        <div>{{ event.dietary_restrictions }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="menu-section">
+                    {% for meal in meals %}
+
+                    {% if meal.show_date_header %}
+                    {% if event.dietary_restrictions %}
+                    <div class="sidebar-title">Dietary Restrictions</div>
+                    <div>
+                        <div>{{ event.dietary_restrictions }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="sidebar-title">MENU</div>
+                    <strong>{{ meal.date_header }}</strong><br>
+                    {% endif %}
+
+                    <span class="menu-category">{{ meal.category_name }}: </span>
+                    {% if meal.time_range %}
+                    <span>{{ meal.time_range }}</span>
+                    {% endif %}
+
+                    <div class="menu-item">
+                        <div class="menu-item-description">{{ meal.description }}</div>
+
+                        {% for subcategory in meal.subcategories %}
+                        <div class="menu-subcategory">
+                            <div class="menu-item-title">{{ subcategory.name }}</div>
+                            <div class="menu-item-description">{{ subcategory.description }}</div>
+                            <div class="menu-item-details" style="white-space:pre-line;">{{ subcategory.menu_list }}
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="page-break-after: always;"></div>
+
+    <!-- ========================================= -->
+    <!-- PÁGINA: PROPUESTA DE SERVICIOS -->
+    <!-- ========================================= -->
+    <div class="page-content">
+        <div class="content-layout">
+            {{ render_sidebar() }}
+
+            <div class="content-layout-main">
+                <div class="menu-section">
+                    <div class="sidebar-title">PROPOSAL OF SERVICES</div>
+                    <div class="sidebar-content">
+                        <div>{{ event.end_date_formatted }}</div>
+                    </div>
+                </div>
+
+                <!-- ===== BLOQUE DE FOOD SERVICES AGRUPADO ===== -->
+                {% if meals %}
+                <div class="financial-section">
+                    <div class="sidebar-title">Food Service</div>
+                    <div class="sidebar-content" style="margin-bottom: 15px;">
+                        Based on {{ event.guests }} Guests
+                    </div>
+
+                    {% for meal in meals %}
+                    {% if meal.show_date_header %}
+                    <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+                        <span class="bold">{{ meal.date_header }}</span>
+                    </div>
+                    <div><strong>{{ meal.total_food_por_dia }}</strong></div>
+                    {% endif %}
+
+                    <div class="financial-item">
+                        <span>{{ meal.category_precio_guest }}</span>
+                        {% if not meal.provide_by_client %}
+                        <span>{{ meal.total_category_precio }}</span>
+                        {% else %}
+                        <span>Provide by the client</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- ===== BLOQUE DE LABOR SERVICE FEES AGRUPADO ===== -->
+                {% if labor_services %}
+                <div class="financial-section">
+                    <div class="sidebar-title">Labor Service Fees</div>
+
+                    {% for labor in labor_services %}
+                    {% if labor.show_date_header %}
+                    <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+                        <span class="bold">{{ labor.date_header }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if labor.show_hours_header %}
+                    <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+                        <p>Staff suggested based on {{ labor.hours }} hours of labor</p>
+                    </div>
+                    <div class="financial-item">
+                        <span>{{ labor.name }}<br><br><strong>{{ labor.total }}</strong></span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- ===== BLOQUE DE EXTRAS EVENTS AGRUPADO ===== -->
+                {% if extras_events %}
+                <div class="financial-section">
+                    <div class="sidebar-title">Extras Services</div>
+
+                    {% for extra in extras_events %}
+                    {% if extra.show_date_header %}
+                    <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
+                        <p class="bold">{{ extra.date_header }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if extra.show_rentals_header and extra.is_rental %}
+                    <span><strong>Rentals</strong></span>
+                    <div class="financial-item">
+                        <span>{{ extra.name }}<br><br><strong>{{ extra.total }}</strong></span>
+                    </div>
+                    {% elif extra.show_rentals_header and not extra.is_rental %}
+                    <span><strong>Sales</strong></span>
+                    <div class="financial-item">
+                        <span>{{ extra.name }}<br><br><strong>{{ extra.total }}</strong></span>
+                    </div>
+                    {% endif %}
+
+                    {% if extra.provide_by_client %}
+                    <span>{{ extra.name }}&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Provide by the client</span>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="financial-section interlineado" style="margin-top: 30px;">
+                    <div class="financial-item item-total">
+                        <span>Food</span>
+                        <span>{{ financials.total_food_service }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <span>Labor Cost</span>
+                        <span>{{ financials.total_labor_cost }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <span>Extras Services</span>
+                        <span>{{ financials.total_extras_events }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <span>{{ financials.tax_rate }} {{ financials.tax_name }}</span>
+                        <span>{{ financials.total_tax }}</span>
+                    </div>
+
+                    {% if financials.total_extras_sales %}
+                    <div class="financial-item">
+                        <span>Extras Services (Sales)</span>
+                        <span>{{ financials.total_extras_sales }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="financial-item">
+                        <span>{{ financials.service_charge_rate }} Service Charge</span>
+                        <span>{{ financials.total_service_charge }}</span>
+                    </div>
+
+                    {% if financials.discount and financials.discount != "$0.00" and financials.discount != "0" and
+                    financials.discount != "" %}
+                    <div class="financial-item">
+                        <span>Discount</span>
+                        <span>-{{ financials.discount }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if financials.donation and financials.donation != "$0.00" and financials.donation != "0" and
+                    financials.donation != "" %}
+                    <div class="financial-item">
+                        <span>Donation</span>
+                        <span>-{{ financials.donation }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if financials.total_credit_card and financials.total_credit_card != "$0.00" and
+                    financials.total_credit_card != "0" and financials.total_credit_card != "" %}
+                    <div class="financial-item">
+                        <span>Credit Card</span>
+                        <span>{{ financials.total_credit_card }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if financials.gratuity and financials.gratuity != "$0.00" and financials.gratuity != "0" and
+                    financials.gratuity != "" %}
+                    <div class="financial-item">
+                        <span>Gratuity</span>
+                        <span>{{ financials.gratuity }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="financial-total">
+                        <span>Total Estimate</span>
+                        <span>{{ financials.total_estimate }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="page-break-after: always;"></div>
+
+    <!-- ========================================= -->
+    <!-- PÁGINA: Explanation of Fees -->
+    <!-- ========================================= -->
+    <div class="page-content">
+        <div class="content-layout">
+            {{ render_sidebar() }}
+
+            <div class="content-layout-main">
+                <div class="sidebar-title">Explanation of Fees</div>
+                <div class="sidebar-title2">Event Planning Service</div>
+
+                <p>If a client resquets that the caterer coordinate the venue rental &amp; décor, entertainment,
+                    photography,
+                    valet parking, flower arranging, or other aspects of planning the event, there will be a small fee
+                    charged for
+                    this service to account for the labor needed to plan the event as agreed upon in writing by the
+                    parties at the
+                    time of such request.</p>
+
+                <div class="sidebar-title2">Delivery Fee</div>
+
+                <p>Not Applicable</p>
+
+                <div class="sidebar-title2">Service Charge</div>
+
+                <p>A service charge of {{ financials.service_charge_rate }} is Indicated in your proposal of
+                    service.This fee covers
+                    all administration,
+                    insurance fees, transportation, site visits, trucking, &amp; supplemental costs associated with the
+                    event
+                    planning.</p>
+
+                <div class="sidebar-title2">Gratuities</div>
+
+                <p>Gratuities are not included in the proposal and are at the sole discretion of the client.</p>
+
+                <div class="sidebar-title2">Taxes and Insurance</div>
+
+                <p>All prices are subject to a {{ financials.service_charge_rate }} service and {{ financials.tax_rate
+                    }}
+                    {{ financials.tax_name }}.</p><br>
+
+                <div class="sidebar-title">Governing Terms</div>
+
+                <p>Foodesign Conceptual Events and the Client acknowledge and agree that this proposal is governed by
+                    the Master
+                    Caterer Agreement executed between the parties.</p><br>
+
+                <div class="sidebar-title">Acceptance By Client</div><br>
+
+                <p>The undersigned, as a duly authorized representative of the Client, {{ client.name }}, hereby
+                    contract the services of Foodesign Conceptual Events as listed and quoted in this proposal on behalf
+                    of the
+                    Client according to the terms and conditions herein.</p>
+
+                <div class="signature-section">
+                    <div class="sidebar-title2">Signed:</div>
+                    <div class="signature-line2"></div>
+                </div>
+
+                <div class="signature-section">
+                    <div class="sidebar-title2">Name:</div>
+                    <div class="signature-line2"></div>
+                </div>
+
+                <div class="signature-section">
+                    <div class="sidebar-title2">Date:</div>
+                    <div class="signature-line2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

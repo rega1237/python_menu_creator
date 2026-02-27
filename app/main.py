@@ -12,6 +12,9 @@ from app.services.general_sign_generator import generate_general_sign_docx
 from app.services.individual_sign_generator import generate_individual_signs_docx
 from app.services.google_drive_service import drive_service
 from app.services.appsheet_service import appsheet_service
+from app.services.estimate_docx_generator import EstimateDocxGenerator
+from app.schemas.estimate_total import EstimateTotalRequest
+import io
 
 app = FastAPI(title="Menu Creator Service")
 
@@ -95,3 +98,43 @@ async def generate_individual_signs(
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+@app.post("/api/v1/menus/generate-estimate-total", response_class=Response)
+async def generate_estimate_total(
+    request: EstimateTotalRequest,
+    upload_to_drive: bool = Query(True)
+):
+    """
+    Generates a Word Estimate based on the provided JSON payload.
+    """
+    generator = EstimateDocxGenerator()
+    docx_stream = generator.generate_docx(request)
+    
+    clean_event_name = request.event.name.split(".")[0] if request.event.name else "Unnamed"
+    safe_event_name = clean_event_name.replace(" ", "_").replace("/", "-")
+    filename = f"Estimate_{safe_event_name}.docx"
+
+    if upload_to_drive:
+        import json
+        result = drive_service.upload_file(docx_stream, filename)
+        if result["success"]:
+            # Callback to AppSheet (Add new row to BDProposal History)
+            appsheet_result = appsheet_service.add_proposal_history_row(
+                event_id=request.event_id,
+                doc_url=result["download_link"]
+            )
+            result["appsheet_update"] = appsheet_result
+            
+            return Response(
+                content=json.dumps(result),
+                media_type="application/json"
+            )
+
+    headers = {
+        'Content-Disposition': f'attachment; filename="{filename}"'
+    }
+    
+    return Response(
+        content=docx_stream.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers=headers
+    )
