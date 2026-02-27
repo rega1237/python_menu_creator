@@ -9,7 +9,9 @@ from app.schemas.estimate_total import EstimateTotalRequest
 
 logger = logging.getLogger(__name__)
 
-TEMPLATE_PATH = "estimate_template.docx"
+# Calculate root dir from app/services/estimate_docx_generator.py
+ROOT_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
+TEMPLATE_PATH = os.path.join(ROOT_DIR, "estimate_template.docx")
 
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "..", "static", "logo_fdce.png")
 BANNER_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "banner.jpg")
