@@ -9,27 +9,10 @@ from app.schemas.estimate_total import EstimateTotalRequest
 
 logger = logging.getLogger(__name__)
 
-# Helper to find files in both local and Render environments
-def get_project_file_path(filename):
-    current_dir = os.path.dirname(__file__)
-    # Potential root directories (local dev vs Render /app container)
-    potential_roots = [
-        os.path.join(current_dir, "..", ".."), # Local: python_menu_creator/
-        os.path.join(current_dir, "..", "..", ".."), # Render: /app/
-        os.path.join("/app") # Render absolute
-    ]
-    
-    for root in potential_roots:
-        path = os.path.abspath(os.path.join(root, filename))
-        if os.path.exists(path):
-            return path
-            
-    # Fallback to the original relative method so it errors with a clean path if not found
-    return os.path.abspath(os.path.join(current_dir, "..", "..", filename))
-
-TEMPLATE_PATH = get_project_file_path("estimate_template.docx")
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "estimate_template.docx")
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "..", "static", "logo_fdce.png")
-BANNER_PATH = get_project_file_path("banner.jpg")
+BANNER_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "banner.jpg")
+
 
 
 class EstimateDocxGenerator:
