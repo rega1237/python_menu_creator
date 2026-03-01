@@ -113,9 +113,19 @@ def generate_combined_excel(request: ExcelMenuRequest) -> BytesIO:
             
             row = base_data.copy()
             row["Subcategory"] = item.subcat
-            # The user requested that for combined, menu includes all names + diet options together.
-            # We output the raw string exactly as provided (e.g. "Item || Diet , Item 2 || Diet 2")
-            row["Menu"] = item.menu
+            
+            # Use the robust parsed menus to reformat the string gracefully
+            parsed_menus = parse_concatenated_menus(item.menu)
+            
+            formatted_menus = []
+            for menu_name, diet_options in parsed_menus:
+                if diet_options:
+                    formatted_menus.append(f"{menu_name} || {diet_options}")
+                else:
+                    # Omit the || when there are no diet options
+                    formatted_menus.append(menu_name)
+                    
+            row["Menu"] = " , ".join(formatted_menus)
             
             rows.append(row)
         
