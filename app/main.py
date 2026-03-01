@@ -16,6 +16,8 @@ from app.services.google_drive_service import drive_service
 from app.services.appsheet_service import appsheet_service
 from app.services.estimate_docx_generator import EstimateDocxGenerator
 from app.schemas.estimate_total import EstimateTotalRequest
+from app.schemas.excel_menu import ExcelMenuRequest
+from app.services.excel_generator import generate_individual_excel, generate_combined_excel
 import io
 
 app = FastAPI(title="Menu Creator Service")
@@ -164,3 +166,72 @@ async def generate_estimate_total(
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers=headers
     )
+
+@app.post("/api/v1/menus/generate-excel", response_class=Response)
+async def generate_excel_endpoint(
+    request: ExcelMenuRequest,
+    upload_to_drive: bool = Query(True)
+):
+    """
+    Generates two Excel documents (Individual and Combined) and uploads them to Drive.
+    Updates AppSheet BDEvents with both links if upload_to_drive is True.
+    """
+    import json
+    
+    # 1. Generate Individual Excel
+    individual_stream = generate_individual_excel(request)
+    # 2. Generate Combined Excel
+    combined_stream = generate_combined_excel(request)
+    
+    clean_event_name = request.event_name.split(".")[0] if request.event_name else "Unnamed"
+    safe_event_name = clean_event_name.replace(" ", "_").replace("/", "-")
+    
+    individual_filename = f"Individual_Excel_{safe_event_name}.xlsx"
+    combined_filename = f"Combined_Excel_{safe_event_name}.xlsx"
+    
+    if upload_to_drive:
+        ind_result = drive_service.upload_file(individual_stream, individual_filename)
+        comb_result = drive_service.upload_file(combined_stream, combined_filename)
+        
+        response_data = {
+            "individual_excel": ind_result,
+            "combined_excel": comb_result,
+            "success": ind_result.get("success", False) and comb_result.get("success", False)
+        }
+        
+        if response_data["success"]:
+            # Perform AppSheet update in the BDEvents table
+            appsheet_result_ind = appsheet_service.update_event_sign_link(
+                event_id=request.event_id,
+                view_link=ind_result["download_link"],
+                column_name="excel_individual"
+            )
+            
+            appsheet_result_comb = appsheet_service.update_event_sign_link(
+                event_id=request.event_id,
+                view_link=comb_result["download_link"],
+                column_name="excel_combined"
+            )
+            
+            response_data["appsheet_update_individual"] = appsheet_result_ind
+            response_data["appsheet_update_combined"] = appsheet_result_comb
+            
+            return Response(
+                content=json.dumps(response_data),
+                media_type="application/json"
+            )
+        else:
+            return Response(
+                status_code=500,
+                content=json.dumps({"error": "Failed to upload one or both Excel files", "details": response_data}),
+                media_type="application/json"
+            )
+    else:
+        # If not uploading, return just one of them as a stream (typically individual)
+        # However, since they requested two, it's better to always require drive
+        return Response(
+            status_code=400,
+            content=json.dumps({"error": "upload_to_drive=False is not supported for this multi-file endpoint"}),
+            media_type="application/json"
+        )
+
