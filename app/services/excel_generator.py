@@ -39,7 +39,22 @@ def generate_individual_excel(request: ExcelMenuRequest) -> BytesIO:
                 
             # A subcategory might contain multiple concatenated menus "Menu1 || Diet1 , Menu2 || Diet2"
             # It's typical in AppSheet List/EnumList that they are separated by " , "
-            raw_menus = [m.strip() for m in item.menu.split(",")]
+            raw_parts = [m.strip() for m in item.menu.split(",")]
+            raw_menus = []
+            
+            for part in raw_parts:
+                if not part:
+                    continue
+                # If it has "||", it's a new menu item
+                if "||" in part:
+                    raw_menus.append(part)
+                # If it doesn't, it means it's a continuation of the previous diet options (e.g. GF , VG , V)
+                else:
+                    if raw_menus:
+                        raw_menus[-1] += f", {part}"
+                    else:
+                        # Fallback if the first item somehow doesn't have "||"
+                        raw_menus.append(part)
             
             for raw_menu in raw_menus:
                 if not raw_menu:
