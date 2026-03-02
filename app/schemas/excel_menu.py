@@ -7,8 +7,6 @@ class ExcelMenuPair(BaseModel):
 
 class ExcelMealData(BaseModel):
     date: str
-    clock_in: str
-    clock_out: str
     category: str
     description: str
     items: List[ExcelMenuPair]
