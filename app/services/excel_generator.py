@@ -47,6 +47,20 @@ def parse_concatenated_menus(full_text: str):
         
     return results
 
+def sort_dataframe_by_date_time(df: pd.DataFrame) -> pd.DataFrame:
+    """Helper to sort dataframe by Date, and then Clock In with empty values first."""
+    if df.empty:
+        return df
+    
+    # Safely convert to datetime/time for sorting without overwriting original string format
+    df['_sort_date'] = pd.to_datetime(df['Date'], errors='coerce')
+    df['_sort_time'] = pd.to_datetime(df['Clock In'], errors='coerce').dt.time
+    
+    # Sort placing NaT (empty times) first
+    df = df.sort_values(by=['_sort_date', '_sort_time'], na_position='first')
+        
+    return df.drop(columns=['_sort_date', '_sort_time'])
+
 def generate_individual_excel(request: ExcelMenuRequest) -> BytesIO:
     """
     Generates an Excel where each individual menu item is a row.
@@ -81,6 +95,7 @@ def generate_individual_excel(request: ExcelMenuRequest) -> BytesIO:
                 rows.append(row)
                 
     df = pd.DataFrame(rows)
+    df = sort_dataframe_by_date_time(df)
     
     # Save to memory
     output = BytesIO()
@@ -130,6 +145,7 @@ def generate_combined_excel(request: ExcelMenuRequest) -> BytesIO:
             rows.append(row)
         
     df = pd.DataFrame(rows)
+    df = sort_dataframe_by_date_time(df)
     
     # Save to memory
     output = BytesIO()
