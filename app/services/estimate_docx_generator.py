@@ -205,17 +205,12 @@ class EstimateDocxGenerator:
                         main_cell.add_paragraph(sub.description)
                     
                     if sub.menu_list:
-                        # Extract items using a smart delimiter that ignores commas inside parentheses
-                        # This allows formats like "GF, VG" inside the diet part without breaking the item apart
-                        import re
-                        
-                        if " |ITEM| " in sub.menu_list:
-                            raw_menus = sub.menu_list.split(" |ITEM| ")
-                        else:
-                            # Split by comma only if it is NOT inside parentheses
-                            # The regex looks for a comma that isn't followed by a closing parenthesis without an opening one first
-                            raw_menus = re.split(r',\s*(?![^()]*\))', sub.menu_list)
-                            
+                        # Extract items using a strictly defined delimiter "|ITEM|"
+                        # Commas are prevalent in names, descriptions, and diet options,
+                        # so splitting by comma natively is too unsafe.
+                        # AppSheet will send multiple items with the default " , " joined list,
+                        # but we must use SUBSTITUTE in AppSheet to replace " , " with " |ITEM| "
+                        raw_menus = sub.menu_list.split(" |ITEM| ")
                         menus = [m.strip() for m in raw_menus if m.strip()]
                         
                         for menu_item in menus:
