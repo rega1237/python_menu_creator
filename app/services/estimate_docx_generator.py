@@ -192,7 +192,7 @@ class EstimateDocxGenerator:
                 
                 for sub in meal.subcategories:
                     # Skip empty subcategories (common in flat AppSheet structures)
-                    if not sub.name.strip() and not sub.menu_list.strip():
+                    if not sub.name.strip() and not sub.items:
                         continue
 
                     sub_p = main_cell.add_paragraph()
