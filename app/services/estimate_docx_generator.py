@@ -57,7 +57,23 @@ class EstimateDocxGenerator:
         # Replace in main paragraphs
         process_paragraphs(doc.paragraphs)
 
-        # Replace in tables (Crucial for the user's current layout)
+        # Replace in Headers (Important for the new repeated sidebar layout)
+        for section in doc.sections:
+            if section.header:
+                process_paragraphs(section.header.paragraphs)
+                for table in section.header.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            process_paragraphs(cell.paragraphs)
+            
+            if section.first_page_header:
+                process_paragraphs(section.first_page_header.paragraphs)
+                for table in section.first_page_header.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            process_paragraphs(cell.paragraphs)
+
+        # Replace in tables in the main body
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
@@ -131,78 +147,66 @@ class EstimateDocxGenerator:
         doc = Document(self.template_path)
         self._replace_placeholders(doc, request)
 
-        # Find the insertion point (paragraph containing the marker)
+        # 1. Find the insertion point (paragraph containing the marker)
         marker_para = None
         for p in doc.paragraphs:
             if "[DYNAMIC_CONTENT_START]" in p.text:
                 marker_para = p
                 break
 
-        # Create the main 2-column layout table
-        # We'll create it first, then move it in the XML
-        table = doc.add_table(rows=1, cols=2)
-        table.autofit = False
-        
-        sidebar_cell = table.cell(0, 0)
-        main_cell = table.cell(0, 1)
-        
-        # Explicitly set column widths
-        table.columns[0].width = Cm(5.5)
-        table.columns[1].width = Cm(12.5)
+        if not marker_para:
+            logger.warning("Marker [DYNAMIC_CONTENT_START] not found in template. Appending to end.")
+            container = doc
+        else:
+            container = marker_para # We'll use insert_paragraph_before logic
 
-        self._add_sidebar_content(sidebar_cell, request)
-        
-        # --- Main Content (Right Side) ---
-        main_cell.width = Cm(12.5)
-        
-        # ... (rest of the content building logic stays the same) ...
-        # [I will keep the logic here for the example, but it's identical to before]
-        # Skip down to where we move the table.
+        def add_p(text=""):
+            if marker_para:
+                return marker_para.insert_paragraph_before(text)
+            return doc.add_paragraph(text)
 
-        # ... (Assuming the rest of the dynamic content building happened here) ...
-        # (Actually, let's keep the full method logic to ensure it works)
-        
-        hp = main_cell.add_paragraph()
+        # --- Main Content ---
+        hp = add_p()
         hr = hp.add_run("PROPOSAL OF SERVICES")
         hr.bold = True
         hr.font.size = Pt(14)
         hr.font.color.rgb = RGBColor(0x61, 0x2d, 0x4b)
         
-        main_cell.add_paragraph(request.event.end_date_formatted)
-        main_cell.add_paragraph()
+        add_p(request.event.end_date_formatted)
+        add_p()
 
         # Meals Loop
         if request.meals:
             # ... meals content ...
             for meal in request.meals:
                 if meal.show_date_header:
-                    dp = main_cell.add_paragraph()
+                    dp = add_p()
                     dr = dp.add_run(meal.date_header)
                     dr.bold = True
                 
-                main_cell.add_paragraph() # Spacer
-                cat_p = main_cell.add_paragraph()
+                add_p() # Spacer
+                cat_p = add_p()
                 cat_time = f" ({meal.time_range})" if meal.time_range else ""
                 cat_run = cat_p.add_run(f"{meal.category_name}{cat_time}")
                 cat_run.bold = True
                 cat_run.font.color.rgb = RGBColor(0x61, 0x2d, 0x4b)
                 
                 if meal.description:
-                    main_cell.add_paragraph(meal.description)
+                    add_p(meal.description)
                 
                 for sub in meal.subcategories:
                     # Skip empty subcategories (common in flat AppSheet structures)
                     if not sub.name.strip() and not sub.items:
                         continue
 
-                    sub_p = main_cell.add_paragraph()
+                    sub_p = add_p()
                     sub_r = sub_p.add_run(sub.name)
                     sub_r.bold = True
                     sub_r.underline = True
                     sub_r.font.color.rgb = RGBColor(0, 0, 0)
                     
                     if sub.description:
-                        main_cell.add_paragraph(sub.description)
+                        add_p(sub.description)
                     
                     if sub.items:
                         for menu_item in sub.items:
@@ -213,7 +217,7 @@ class EstimateDocxGenerator:
                             if not name and not desc:
                                 continue
 
-                            menu_p = main_cell.add_paragraph()
+                            menu_p = add_p()
                             menu_p.paragraph_format.left_indent = Cm(0.5)
                             
                             # Add bullet and name (Purple, Bold)
@@ -228,17 +232,17 @@ class EstimateDocxGenerator:
                             
                             # Add description (Gray, Italic, Smaller, Indented)
                             if desc:
-                                desc_p = main_cell.add_paragraph()
+                                desc_p = add_p()
                                 desc_p.paragraph_format.left_indent = Cm(1.0)
                                 desc_run = desc_p.add_run(desc)
                                 desc_run.italic = True
                                 desc_run.font.size = Pt(10)
                                 desc_run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
                 
-                main_cell.add_paragraph()
+                add_p()
 
         # Financials
-        fin_title = main_cell.add_paragraph()
+        fin_title = add_p()
         fin_run = fin_title.add_run("Estimation")
         fin_run.bold = True
         fin_run.font.color.rgb = RGBColor(0x61, 0x2d, 0x4b)
@@ -250,20 +254,17 @@ class EstimateDocxGenerator:
             (f"{request.financials.tax_rate} {request.financials.tax_name}", request.financials.total_tax),
             (f"{request.financials.service_charge_rate} Service Charge", request.financials.total_service_charge)
         ]:
-            p = main_cell.add_paragraph()
+            p = add_p()
             p.add_run(f"{label}: ").bold = True
             p.add_run(val)
             
-        total_p = main_cell.add_paragraph()
+        total_p = add_p()
         total_r = total_p.add_run(f"Total Estimate: {request.financials.total_estimate}")
         total_r.bold = True
         total_r.font.size = Pt(13)
 
-        # MOVE TABLE to marker position
+        # Remove the marker paragraph
         if marker_para:
-            # Move the table before the marker paragraph
-            marker_para._p.addnext(table._tbl)
-            # Remove the marker paragraph
             p_element = marker_para._element
             p_element.getparent().remove(p_element)
 
