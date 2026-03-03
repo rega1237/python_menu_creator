@@ -1,0 +1,26 @@
+{
+  "event_id": "<<[ID]>>",
+  "event_name": "<<[Event]>>",
+  "all_meals": [
+    <<Start: [Related BDMeals]>>
+    {
+      "categoria": "<<[CATEGORY].[NAME]>>",
+      "fecha": "<<[Fechameals]>>",
+      "descripcion": "<<[Category].[Description]>>",
+      "items": [
+        {"subcat": "<<[Subcategory].[Name]>>", "menu": "<<[menu text]>>"},
+        {"subcat": "<<[Subcategory 1].[Name]>>", "menu": "<<[menu text 1]>>"},
+        {"subcat": "<<[Subcategory 2].[Name]>>", "menu": "<<[menu text 2]>>"},
+        {"subcat": "<<[Subcategory 3].[Name]>>", "menu": "<<[menu text 3]>>"},
+        {"subcat": "<<[Subcategory 4].[Name]>>", "menu": "<<[menu text 4]>>"},
+        {"subcat": "<<[Subcategory 5].[Name]>>", "menu": "<<[menu text 5]>>"},
+        {"subcat": "<<[Subcategory 6].[Name]>>", "menu": "<<[menu text 6]>>"},
+        {"subcat": "<<[Subcategory 7].[Name]>>", "menu": "<<[menu text 7]>>"},
+        {"subcat": "<<[Subcategory 8].[Name]>>", "menu": "<<[menu text 8]>>"},
+        {"subcat": "<<[Subcategory 9].[Name]>>", "menu": "<<[menu text 9]>>"},
+        {"subcat": "<<[Subcategory 10].[Name]>>", "menu": "<<[menu text 10]>>"}
+      ]
+    }<<If: (COUNT([_THISROW].[Related BDMeals]) > 1)>>,<<EndIf>>
+    <<End>>
+  ]
+}

@@ -1,0 +1,257 @@
+{
+    "event_id": "<<[ID]>>",
+    "client": {
+        "name": "<<[Client].[Nombre]>>",
+        "address": "<<[Client Adress].[Adress]>>",
+        "email": "<<[Client].[Correo]>>"
+    },
+    "client_representative": {
+        "name": "<<[Client Representative].[Name_representative]>>",
+        "email": "<<[Client Representative].[Email_representative]>>",
+        "formatted_phone": "<<[Client Representative].[Phone 1]>>"
+    },
+    "event": {
+        "name": "<<[Event]>>",
+        "address": "<<[Event adress]>>",
+        "code": "<<[Event Code]>>",
+        "date_formatted": "<<[Event date]>>",
+        "end_date_formatted": "<<[End Event]>>",
+        "guests": <<[Guest
+        ]>>,
+        "dietary_restrictions": "<<[Dietary Restrictions]>>"
+    },
+    "meals": [
+    <<Start: [Related BDMeals
+        ]>>
+    {
+            "show_date_header": true,
+            "date_header": "<<[Date]>>",
+            "category_name": "<<[Category].[Name]>>",
+            "description": "<<[Description]>>",
+            "subcategories": [
+        <<If: ISNOTBLANK([Menu
+                ])>>
+        {
+                    "name": "<<[Subcategory].[Name]>>",
+                    "description": "<<[Subcategory].[Description]>>",
+                    "items": [
+            <<Start: [Menu
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 1
+                ])>>
+        {
+                    "name": "<<[SubCategory 1].[Name]>>",
+                    "description": "<<[SubCategory 1].[Description]>>",
+                    "items": [
+            <<Start: [Menu 1
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 2
+                ])>>
+        {
+                    "name": "<<[SubCategory 2].[Name]>>",
+                    "description": "<<[SubCategory 2].[Description]>>",
+                    "items": [
+            <<Start: [Menu 2
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 3
+                ])>>
+        {
+                    "name": "<<[SubCategory 3].[Name]>>",
+                    "description": "<<[SubCategory 3].[Description]>>",
+                    "items": [
+            <<Start: [Menu 3
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 4
+                ])>>
+        {
+                    "name": "<<[SubCategory 4].[Name]>>",
+                    "description": "<<[SubCategory 4].[Description]>>",
+                    "items": [
+            <<Start: [Menu 4
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 5
+                ])>>
+        {
+                    "name": "<<[SubCategory 5].[Name]>>",
+                    "description": "<<[SubCategory 5].[Description]>>",
+                    "items": [
+            <<Start: [Menu 5
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 6
+                ])>>
+        {
+                    "name": "<<[SubCategory 6].[Name]>>",
+                    "description": "<<[SubCategory 6].[Description]>>",
+                    "items": [
+            <<Start: [Menu 6
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 7
+                ])>>
+        {
+                    "name": "<<[SubCategory 7].[Name]>>",
+                    "description": "<<[SubCategory 7].[Description]>>",
+                    "items": [
+            <<Start: [Menu 7
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 8
+                ])>>
+        {
+                    "name": "<<[SubCategory 8].[Name]>>",
+                    "description": "<<[SubCategory 8].[Description]>>",
+                    "items": [
+            <<Start: [Menu 8
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 9
+                ])>>
+        {
+                    "name": "<<[SubCategory 9].[Name]>>",
+                    "description": "<<[SubCategory 9].[Description]>>",
+                    "items": [
+            <<Start: [Menu 9
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 10
+                ])>>
+        {
+                    "name": "<<[SubCategory 10].[Name]>>",
+                    "description": "<<[SubCategory 10].[Description]>>",
+                    "items": [
+            <<Start: [Menu 10
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                },
+        <<EndIf>>
+        <<If: ISNOTBLANK([Menu 11
+                ])>>
+        {
+                    "name": "<<[SubCategory 11].[Name]>>",
+                    "description": "<<[SubCategory 11].[Description]>>",
+                    "items": [
+            <<Start: [Menu 11
+                        ]>>
+            {
+                            "name": "<<[Name]>>",
+                            "description": "<<[Description]>>",
+                            "diet_options": "<<[Diet Options]>>"
+                        },
+            <<End>>
+                    ]
+                }
+        <<EndIf>>
+            ]
+        }<<If: ([_ROWNUMBER
+        ] <> MAX(Select(BDMeals[_ROWNUMBER
+        ],
+        [Event Id
+        ] = [_THISROW
+        ].[ID
+        ])))>>,<<EndIf>>
+    <<End>>
+    ],
+    "financials": {
+        "total_food_service": "<<[TotalFoodService]>>",
+        "total_labor_cost": "<<[Total Labor Cost]>>",
+        "total_extras_events": "<<[TotalExtrasEvents]>>",
+        "tax_name": "<<[Tax].[Name]>>",
+        "tax_rate": "<<[Tax].[Tax]>>",
+        "total_tax": "<<[TOTALtax]>>",
+        "service_charge_rate": "<<[Service Charge]>>",
+        "total_service_charge": "<<[TotalServiceCharge]>>",
+        "total_estimate": "<<[Total]>>"
+    }
+}

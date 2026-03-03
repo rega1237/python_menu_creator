@@ -1,9 +1,10 @@
 import os
 import logging
+from datetime import datetime
 from io import BytesIO
 from docx import Document
 from docx.shared import Pt, RGBColor, Cm
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.enum.table import WD_ALIGN_VERTICAL
 from app.schemas.estimate_total import EstimateTotalRequest
 
@@ -162,6 +163,33 @@ class EstimateDocxGenerator:
         else:
             container = marker_para # We'll use insert_paragraph_before logic
 
+        def format_full_date(date_str: str) -> str:
+            if not date_str:
+                return ""
+            try:
+                # Try to parse MM/DD/YY or MM/DD/YYYY
+                parts = date_str.split("/")
+                if len(parts) == 3:
+                    m, d, y = map(int, parts)
+                    if y < 100:
+                        y += 2000
+                    dt = datetime(y, m, d)
+                else:
+                    # Try YYYY-MM-DD
+                    dt = datetime.strptime(date_str, "%Y-%m-%d")
+                
+                # Format: Tuesday, October, 27th 2026
+                day = dt.day
+                if 11 <= day <= 13:
+                    suffix = "th"
+                else:
+                    suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+                
+                return dt.strftime(f"%A, %B, {day}{suffix} %Y")
+            except Exception as e:
+                logger.warning(f"Could not parse date '{date_str}': {e}")
+                return date_str
+
         def add_p(text="", alignment=None, line_spacing=1.4, space_after=Pt(6)):
             if marker_para:
                 p = marker_para.insert_paragraph_before(text)
@@ -187,11 +215,16 @@ class EstimateDocxGenerator:
             return run
 
         # --- Main Content ---
-        hp = add_p()
-        hr = hp.add_run("PROPOSAL OF SERVICES")
+        # Replace "PROPOSAL OF SERVICES" with Event Name
+        hp = add_p(alignment=WD_ALIGN_PARAGRAPH.CENTER)
+        hr = hp.add_run(request.event.name.upper() if request.event.name else "PROPOSAL OF SERVICES")
         style_run(hr, size=Pt(14), bold=True, color=0x612d4b)
         
-        add_p(request.event.end_date_formatted)
+        # Add Event Date formatted
+        date_formatted = format_full_date(request.event.date_formatted)
+        if date_formatted:
+            dp = add_p(date_formatted, alignment=WD_ALIGN_PARAGRAPH.CENTER)
+            style_run(dp.runs[0], size=Pt(11))
         add_p()
 
         # Meals Loop
@@ -200,7 +233,7 @@ class EstimateDocxGenerator:
             for meal in request.meals:
                 if meal.show_date_header:
                     dp = add_p()
-                    dr = dp.add_run(meal.date_header)
+                    dr = dp.add_run(format_full_date(meal.date_header) if meal.date_header else "")
                     style_run(dr, bold=True)
                 
                 add_p() # Spacer
@@ -236,10 +269,16 @@ class EstimateDocxGenerator:
                                 continue
 
                             menu_p = add_p(space_after=Pt(2))
-                            menu_p.paragraph_format.left_indent = Cm(0.5)
+                            # Hanging indent: indent whole paragraph, outdent first line
+                            menu_p.paragraph_format.left_indent = Cm(1.0) # Overall indent (where text wraps)
+                            menu_p.paragraph_format.first_line_indent = Cm(-0.5) # Bullet starts 0.5cm LEFT of that
                             
-                            # Add bullet and name (Standard body color, Underlined per HTML)
-                            menu_run = menu_p.add_run(f"• {name}")
+                            # Add bullet (Not underlined)
+                            bullet_run = menu_p.add_run("• ")
+                            style_run(bullet_run, size=Pt(13), bold=True)
+                            
+                            # Add name (Standard body color, Underlined per HTML)
+                            menu_run = menu_p.add_run(name)
                             style_run(menu_run, size=Pt(13), bold=True, underline=True)
                             
                             # Add diet details (Purple, Regular, Parentheses)
