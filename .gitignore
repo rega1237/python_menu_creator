@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.pytest_cache/
+
+# Sensitive data
+menu-appsheet-*.json
+
+# OS specific
+.DS_Store
