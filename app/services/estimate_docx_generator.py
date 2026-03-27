@@ -4,17 +4,14 @@ from datetime import datetime
 from io import BytesIO
 from docx import Document
 from docx.shared import Pt, RGBColor, Cm
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
-from docx.enum.table import WD_ALIGN_VERTICAL
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 from app.schemas.estimate_total import EstimateTotalRequest
 
 logger = logging.getLogger(__name__)
 
-TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "estimate_template.docx")
-LOGO_PATH = os.path.join(os.path.dirname(__file__), "..", "static", "logo_fdce.png")
-BANNER_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "banner.jpg")
-
-
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "estimate_temaplate.docx")
 
 class EstimateDocxGenerator:
     def __init__(self, template_path=TEMPLATE_PATH):
@@ -38,110 +35,33 @@ class EstimateDocxGenerator:
             "{{SERVICE_CHARGE_RATE}}": request.financials.service_charge_rate,
         }
 
-        # Helper to process a list of paragraphs
         def process_paragraphs(paragraphs):
             for paragraph in paragraphs:
                 for key, value in replacements.items():
                     if key in paragraph.text:
-                        # Try replacement in runs first to preserve formatting and images
-                        found_in_run = False
                         for run in paragraph.runs:
                             if key in run.text:
                                 run.text = run.text.replace(key, str(value or ""))
-                                found_in_run = True
-                        
-                        # If not found in any single run (split across runs),
-                        # we fall back to paragraph.text replacement.
-                        if not found_in_run:
-                            paragraph.text = paragraph.text.replace(key, str(value or ""))
 
-        # Replace in main paragraphs
         process_paragraphs(doc.paragraphs)
 
-        # Helper to process XML nodes (needed for Text Boxes / Shapes in Headers)
         def process_xml_element(element):
-            # w:t is the WordprocessingML tag for text
             for t_element in element.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t"):
                 if t_element.text:
                     for key, value in replacements.items():
                         if key in t_element.text:
                             t_element.text = t_element.text.replace(key, str(value or ""))
 
-        # Replace in Headers (Important for the new repeated sidebar layout)
-        # Includes standard paragraphs, tables, AND floating shapes (Text Boxes)
         for section in doc.sections:
             if section.header:
                 process_xml_element(section.header._element)
-            
             if section.first_page_header:
                 process_xml_element(section.first_page_header._element)
 
-        # Replace in tables in the main body
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
                     process_paragraphs(cell.paragraphs)
-
-    def _add_sidebar_content(self, cell, request: EstimateTotalRequest):
-        """Fills the left column (sidebar) with event and client details."""
-        cell.width = Cm(5.5)
-        
-        # Banner at the top
-        if os.path.exists(BANNER_PATH):
-            banner_para = cell.add_paragraph()
-            banner_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run = banner_para.add_run()
-            run.add_picture(BANNER_PATH, width=Cm(5.0))
-            cell.add_paragraph() # Spacer
-
-        # Tagline
-        p = cell.add_paragraph()
-        run = p.add_run("We create everlasting moments")
-        run.font.size = Pt(13)
-        run.bold = True
-        run.font.color.rgb = RGBColor(0x61, 0x2d, 0x4b)
-        run.italic = True
-
-        # Sections
-        sections = [
-            ("Client", [request.client.name, request.client.address, request.client.email]),
-            ("Client Representative", [
-                request.client_representative.name, 
-                request.client_representative.email,
-                f"Ph: {request.client_representative.formatted_phone}"
-            ]),
-            ("Event Details", [
-                request.event.name,
-                request.event.address,
-                f"Event Code: {request.event.code}",
-                f"Start: {request.event.date_formatted}",
-                f"End: {request.event.end_date_formatted}",
-                f"{request.event.guests} Guests"
-            ])
-        ]
-
-        for title, lines in sections:
-            cell.add_paragraph() # Spacer
-            tp = cell.add_paragraph()
-            tr = tp.add_run(title)
-            tr.bold = True
-            tr.font.size = Pt(12)
-            tr.font.color.rgb = RGBColor(0x61, 0x2d, 0x4b)
-            
-            for line in lines:
-                if line:
-                    lp = cell.add_paragraph(line)
-                    lp.paragraph_format.space_after = Pt(2)
-                    run = lp.runs[0]
-                    run.font.size = Pt(10)
-
-        # Logo at the bottom
-        if os.path.exists(LOGO_PATH):
-            cell.add_paragraph() # Spacer
-            logo_para = cell.add_paragraph()
-            logo_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run = logo_para.add_run()
-            run.add_picture(LOGO_PATH, width=Cm(3.5))
 
     def generate_docx(self, request: EstimateTotalRequest) -> BytesIO:
         if not os.path.exists(self.template_path):
@@ -150,7 +70,6 @@ class EstimateDocxGenerator:
         doc = Document(self.template_path)
         self._replace_placeholders(doc, request)
 
-        # 1. Find the insertion point (paragraph containing the marker)
         marker_para = None
         for p in doc.paragraphs:
             if "[DYNAMIC_CONTENT_START]" in p.text:
@@ -158,182 +77,188 @@ class EstimateDocxGenerator:
                 break
 
         if not marker_para:
-            logger.warning("Marker [DYNAMIC_CONTENT_START] not found in template. Appending to end.")
-            container = doc
-        else:
-            container = marker_para # We'll use insert_paragraph_before logic
+            logger.warning("Marker [DYNAMIC_CONTENT_START] not found. Appending to end.")
 
-        def format_full_date(date_str: str) -> str:
-            if not date_str:
-                return ""
-            try:
-                # Try to parse MM/DD/YY or MM/DD/YYYY
-                parts = date_str.split("/")
-                if len(parts) == 3:
-                    m, d, y = map(int, parts)
-                    if y < 100:
-                        y += 2000
-                    dt = datetime(y, m, d)
-                else:
-                    # Try YYYY-MM-DD
-                    dt = datetime.strptime(date_str, "%Y-%m-%d")
-                
-                # Format: Tuesday, October, 27th 2026
-                day = dt.day
-                if 11 <= day <= 13:
-                    suffix = "th"
-                else:
-                    suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
-                
-                return dt.strftime(f"%A, %B, {day}{suffix} %Y")
-            except Exception as e:
-                logger.warning(f"Could not parse date '{date_str}': {e}")
-                return date_str
-
-        def add_p(text="", alignment=None, line_spacing=1.4, space_after=Pt(6)):
+        def add_p(text="", alignment=None, space_after=Pt(6), space_before=Pt(0), bold=False, italic=False, size=Pt(11), color=0x333333):
             if marker_para:
                 p = marker_para.insert_paragraph_before(text)
             else:
                 p = doc.add_paragraph(text)
             
-            if alignment:
-                p.alignment = alignment
-            
-            p.paragraph_format.line_spacing = line_spacing
+            if alignment: p.alignment = alignment
             p.paragraph_format.space_after = space_after
+            p.paragraph_format.space_before = space_before
+            
+            if text and p.runs:
+                run = p.runs[0]
+                run.font.name = "Open Sans"
+                run.font.size = size
+                run.bold = bold
+                run.italic = italic
+                if color is not None:
+                    run.font.color.rgb = RGBColor((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff)
             return p
 
-        def style_run(run, font_name="Open Sans", size=None, bold=False, italic=False, underline=False, color=0x333333):
-            run.font.name = font_name
-            if size:
-                run.font.size = size
-            run.bold = bold
-            run.italic = italic
-            run.underline = underline
-            if color is not None:
-                run.font.color.rgb = RGBColor((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff)
-            return run
+        def add_hr():
+            p = add_p(space_after=Pt(2), space_before=Pt(12))
+            p_pr = p._element.get_or_add_pPr()
+            p_bdr = OxmlElement('w:pBdr')
+            bottom = OxmlElement('w:bottom')
+            bottom.set(qn('w:val'), 'single')
+            bottom.set(qn('w:sz'), '6')
+            bottom.set(qn('w:space'), '1')
+            bottom.set(qn('w:color'), '000000')
+            p_bdr.append(bottom)
+            p_pr.append(p_bdr)
 
-        # --- Main Content ---
-        # Replace "PROPOSAL OF SERVICES" with Event Name
-        hp = add_p(alignment=WD_ALIGN_PARAGRAPH.CENTER)
-        hr = hp.add_run(request.event.name.upper() if request.event.name else "PROPOSAL OF SERVICES")
-        style_run(hr, size=Pt(14), bold=True, color=0x612d4b)
-        
-        # Add Event Date formatted
-        date_formatted = format_full_date(request.event.date_formatted)
-        if date_formatted:
-            dp = add_p(date_formatted, alignment=WD_ALIGN_PARAGRAPH.CENTER)
-            style_run(dp.runs[0], size=Pt(11))
+        # --- MENU SECTION ---
+        add_p("MENUS", bold=True, size=Pt(14), color=0x612d4b)
+        add_p(request.event.date_formatted, size=Pt(11))
+
+        if request.event.dietary_restrictions:
+            add_p()
+            add_p("Dietary Restrictions", bold=True, size=Pt(12), color=0x612d4b)
+            add_p(request.event.dietary_restrictions)
+
+        for meal in request.meals:
+            add_hr()
+            if meal.show_date_header:
+                add_p(meal.date_header, bold=True, space_before=Pt(6))
+            
+            cat_text = meal.category_name.upper()
+            if meal.time_range:
+                cat_text += f": {meal.time_range}"
+            
+            add_p(cat_text, bold=True, size=Pt(14), color=0x612d4b, space_before=Pt(8))
+            
+            if meal.provide_by_client:
+                p = add_p("◽ Provided by client", space_before=Pt(4))
+                p.paragraph_format.left_indent = Cm(0.5)
+                continue
+
+            if meal.description:
+                add_p(meal.description, italic=True)
+
+            # --- MEAL LEVEL ---
+            for i in range(1, 13):
+                sub_name = getattr(meal, f"subcategory_{i}_name", "")
+                sub_desc = getattr(meal, f"subcategory_{i}_description", "")
+                sub_items = getattr(meal, f"subcategory_{i}_items", [])
+
+                if not sub_name and not sub_items:
+                    continue
+                
+                if sub_name:
+                    sub_p = add_p(sub_name, bold=True, space_before=Pt(6))
+                    sub_p.runs[0].underline = True
+
+                if sub_desc:
+                    add_p(sub_desc, size=Pt(10), italic=True)
+
+                for item in sub_items:
+                    # Construct the main item line
+                    item_p = add_p(space_after=Pt(2))
+                    item_p.paragraph_format.left_indent = Cm(0.8)
+                    item_p.paragraph_format.first_line_indent = Cm(-0.4)
+                    
+                    r_bullet = item_p.add_run("◽ ")
+                    r_bullet.bold = True
+                    
+                    r_name = item_p.add_run(item.name)
+                    r_name.bold = True
+                    r_name.underline = True
+                    
+                    if item.diet_options:
+                        r_diet = item_p.add_run(f" ({item.diet_options})")
+                        r_diet.font.color.rgb = RGBColor(0x61, 0x2d, 0x4b)
+                        r_diet.font.size = Pt(10)
+
+                    if item.description:
+                        desc_p = add_p(item.description, size=Pt(10), italic=True, color=0x555555, space_after=Pt(4))
+                        desc_p.paragraph_format.left_indent = Cm(1.2)
+
+        # --- FINANCIAL SECTION ---
+        # Force a page break before financials if needed, or just a big spacer
+        add_p(space_before=Pt(30))
+        add_p("PROPOSAL OF SERVICES", bold=True, size=Pt(14), color=0x612d4b)
+        add_p(request.event.end_date_formatted) # HTML uses End Event here
         add_p()
 
-        # Meals Loop
-        if request.meals:
-            # ... meals content ...
-            for meal in request.meals:
-                if meal.show_date_header:
-                    dp = add_p()
-                    dr = dp.add_run(format_full_date(meal.date_header) if meal.date_header else "")
-                    style_run(dr, bold=True)
-                
-                add_p() # Spacer
-                cat_p = add_p()
-                cat_time = f" ({meal.time_range})" if meal.time_range else ""
-                cat_run = cat_p.add_run(f"{meal.category_name.upper()}{cat_time}")
-                style_run(cat_run, size=Pt(14), bold=True, color=0x612d4b)
-                
-                if meal.description:
-                    p = add_p(meal.description)
-                    style_run(p.runs[0])
-                
-                for sub in meal.subcategories:
-                    # Skip empty subcategories (common in flat AppSheet structures)
-                    if not sub.name.strip() and not sub.items:
-                        continue
-
-                    sub_p = add_p()
-                    sub_r = sub_p.add_run(sub.name)
-                    style_run(sub_r, bold=True, underline=True, color=0x333333)
-                    
-                    if sub.description:
-                        p = add_p(sub.description)
-                        style_run(p.runs[0])
-                    
-                    if sub.items:
-                        for menu_item in sub.items:
-                            name = menu_item.name.strip()
-                            desc = menu_item.description.strip()
-                            diet = menu_item.diet_options.strip()
-
-                            if not name and not desc:
-                                continue
-
-                            menu_p = add_p(space_after=Pt(2))
-                            # Hanging indent: indent whole paragraph, outdent first line
-                            menu_p.paragraph_format.left_indent = Cm(1.0) # Overall indent (where text wraps)
-                            menu_p.paragraph_format.first_line_indent = Cm(-0.5) # Bullet starts 0.5cm LEFT of that
-                            
-                            # Add bullet (Not underlined)
-                            bullet_run = menu_p.add_run("• ")
-                            style_run(bullet_run, size=Pt(13), bold=True)
-                            
-                            # Add name (Standard body color, Underlined per HTML)
-                            menu_run = menu_p.add_run(name)
-                            style_run(menu_run, size=Pt(13), bold=True, underline=True)
-                            
-                            # Add diet details (Purple, Regular, Parentheses)
-                            if diet:
-                                diet_run = menu_p.add_run(f" ({diet})")
-                                style_run(diet_run, size=Pt(11), color=0x612d4b)
-                            
-                            # Add description (Gray, Italic, Smaller, Indented)
-                            if desc:
-                                desc_p = add_p(space_after=Pt(8))
-                                desc_p.paragraph_format.left_indent = Cm(1.0)
-                                desc_run = desc_p.add_run(desc)
-                                style_run(desc_run, size=Pt(10), italic=True, color=0x555555)
-                
-                add_p()
-
-        # Financials
-        fin_title = add_p()
-        fin_run = fin_title.add_run("Estimation")
-        style_run(fin_run, size=Pt(14), bold=True, color=0x612d4b)
+        # 1. Food Service
+        add_p("Food Service", bold=True, size=Pt(12), color=0x612d4b)
+        add_p(f"Based on {request.event.guests} Guests", size=Pt(10), italic=True)
         
-        for label, val in [
-            ("Food", request.financials.total_food_service),
-            ("Labor Cost", request.financials.total_labor_cost),
-            ("Extras Services", request.financials.total_extras_events),
-            (f"{request.financials.tax_rate} {request.financials.tax_name}", request.financials.total_tax),
-            (f"{request.financials.service_charge_rate} Service Charge", request.financials.total_service_charge)
-        ]:
-            p = add_p()
-            p.add_run(f"{label}: ").bold = True
-            p.add_run(val)
+        for meal in request.meals:
+            if meal.show_date_header:
+                add_p(meal.date_header, bold=True, space_before=Pt(6))
             
-        total_p = add_p()
-        # Add a top border manually via XML for the total
-        from docx.oxml.ns import qn
-        from docx.oxml import OxmlElement
+            p = add_p(space_after=Pt(2))
+            r_label = p.add_run(meal.category_precio_guest)
+            r_spacer = p.add_run("\t") # Tab to align right if possible, or just space
+            if not meal.provide_by_client:
+                r_val = p.add_run(meal.total_category_precio)
+                r_val.bold = True
+            else:
+                p.add_run("Provided by client").italic = True
+
+        # 2. Labor
+        if request.labor_services:
+            add_p("Labor Service Fees", bold=True, size=Pt(12), color=0x612d4b, space_before=Pt(15))
+            for labor in request.labor_services:
+                if labor.show_date_header:
+                    add_p(labor.date_header, bold=True, space_before=Pt(6))
+                if labor.show_hours_header:
+                    add_p(f"Staff suggested based on {labor.hours} hours of labor", size=Pt(10), italic=True)
+                
+                p = add_p(space_after=Pt(4))
+                p.add_run(f"{labor.name}\t{labor.total}").bold = True
+
+        # 3. Extras
+        if request.extras_events:
+            add_p("Extras Services", bold=True, size=Pt(12), color=0x612d4b, space_before=Pt(15))
+            for extra in request.extras_events:
+                if extra.show_date_header:
+                    add_p(extra.date_header, bold=True)
+                
+                p = add_p(space_after=Pt(2))
+                txt = f"{extra.name}\t{extra.total}"
+                if extra.provide_by_client: txt += " (Provided by client)"
+                p.add_run(txt).bold = True
+
+        # 4. Final Summary
+        add_p(space_before=Pt(20))
+        fin = request.financials
+        summary_items = [
+            ("Food", fin.total_food_service),
+            ("Labor Cost", fin.total_labor_cost),
+            ("Extras Services", fin.total_extras_events),
+            (f"{fin.tax_rate} {fin.tax_name}", fin.total_tax),
+            (f"{fin.service_charge_rate} Service Charge", fin.total_service_charge),
+        ]
+        if fin.discount and fin.discount != "0": summary_items.append(("Discount", f"-{fin.discount}"))
+        if fin.donation and fin.donation != "0": summary_items.append(("Donation", f"-{fin.donation}"))
+        if fin.total_credit_card and fin.total_credit_card != "0": summary_items.append(("Credit Card Fee", fin.total_credit_card))
+        if fin.gratuity and fin.gratuity != "0": summary_items.append(("Gratuity", fin.gratuity))
+
+        for label, val in summary_items:
+            p = add_p(space_after=Pt(2))
+            p.add_run(f"{label}\t{val}")
+
+        # Total Line
+        total_p = add_p(f"Total Estimate\t{fin.total_estimate}", bold=True, size=Pt(13), color=0x612d4b, space_before=Pt(8))
         p_pr = total_p._element.get_or_add_pPr()
         p_bdr = OxmlElement('w:pBdr')
         top = OxmlElement('w:top')
         top.set(qn('w:val'), 'single')
-        top.set(qn('w:sz'), '12') # 1.5 pt
-        top.set(qn('w:space'), '4')
+        top.set(qn('w:sz'), '12')
         top.set(qn('w:color'), '612D4B')
         p_bdr.append(top)
         p_pr.append(p_bdr)
 
-        total_r = total_p.add_run(f"Total Estimate: {request.financials.total_estimate}")
-        style_run(total_r, size=Pt(13), bold=True, color=0x612d4b)
-
-        # Remove the marker paragraph
         if marker_para:
             p_element = marker_para._element
             p_element.getparent().remove(p_element)
 
-        # Save to memory stream
         docx_stream = BytesIO()
         doc.save(docx_stream)
         docx_stream.seek(0)

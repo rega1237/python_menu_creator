@@ -3,29 +3,25 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Propuesta - &lt;&lt;[Client].[Nombre]&gt;&gt;</title>
   <style>
-    /* Reset y configuración base */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    /* Configuración de páginas para PDF */
     @page {
       size: Letter;
-      margin: 0.5in 0.5in 0.5in 0.5in;
+      margin: 0.5in;
     }
 
-    /* Portada sin márgenes */
     @page :first {
       margin: 0;
     }
 
     body {
-      font-family: 'Open sands', sans-serif;
+      font-family: 'Open Sans', sans-serif;
       background-color: white;
       color: #333;
       line-height: 1.4;
@@ -71,7 +67,6 @@
     /* ===== HEADER REPETIBLE ===== */
     .repeating-header {
       display: none;
-      /* Oculto por defecto, solo visible en impresión */
     }
 
     .header-content {
@@ -116,7 +111,6 @@
     /* ===== FOOTER REPETIBLE ===== */
     .repeating-footer {
       display: none;
-      /* Oculto por defecto, solo visible en impresión */
     }
 
     .footer-content {
@@ -157,6 +151,7 @@
       vertical-align: top;
       padding-left: 20px;
       font-size: 11.5px;
+      padding-top: 50px;
     }
 
     .content-layout-main p {
@@ -203,14 +198,6 @@
     .sidebar-content div {
       margin-bottom: 2px;
       text-align: left;
-    }
-
-    /* ===== CONTENIDO PRINCIPAL ===== */
-    .main-column p {
-      margin-bottom: 1.2em;
-      font-size: 13px;
-      line-height: 1.6;
-      text-align: justify;
     }
 
     /* ===== FIRMA ===== */
@@ -267,12 +254,13 @@
       page-break-after: avoid;
     }
 
+    /* CURA 2: page-break-inside: auto permite el flujo sin hojas en blanco */
     .menu-item {
       margin-bottom: 12px;
       padding-bottom: 8px;
       border-bottom: 1px solid #eee;
       text-align: left;
-      page-break-inside: avoid;
+      page-break-inside: auto;
       padding-right: 10px;
     }
 
@@ -308,14 +296,13 @@
     /* ===== SECCIÓN FINANCIERA ===== */
     .financial-section {
       margin-top: 20px;
-      page-break-inside: avoid;
+      page-break-inside: auto;
     }
 
     .financial-section.interlineado {
       line-height: 0.5 !important;
     }
 
-    /* Interlineado reducido para secciones específicas */
     .financial-section .financial-item {
       line-height: 1.2;
       margin-bottom: 4px;
@@ -336,7 +323,6 @@
 
     .financial-section.interlineado .financial-item {
       line-height: 0.5;
-      /* Ajusta este valor según tus necesidades */
     }
 
     .financial-fechalabor {
@@ -356,59 +342,25 @@
 
     /* ===== SALTOS DE PÁGINA ===== */
     .single-page {
-      page-break-after: always;
+      page-break-before: always;
     }
 
     .page-content {
-      page-break-inside: always;
+      page-break-inside: auto;
     }
 
-    /* ===== ESTILOS ESPECÍFICOS PARA PÁGINAS DE MENÚ ===== */
     .menu-page {
       page-break-before: always;
-      page-break-inside: always;
-    }
-
-    /* Sidebar para páginas de menú - se repetirá en cada página */
-    .menu-page .content-layout-sidebar {
-      position: fixed;
-      left: 0;
-      top: 130px;
-      width: 260px;
-      height: calc(100vh - 270px);
-      background-color: white;
-      z-index: 100;
-      overflow: hidden;
-      page-break-inside: avoid;
-      padding-right: 30px;
-    }
-
-    /* Contenido principal con margen para el sidebar fijo - alineado con carta de presentación */
-    .menu-page .content-layout-main {
-      margin-top: 0px;
-      margin-left: 260px;
-      padding-left: 20px;
-      padding-right: 40px;
       page-break-inside: auto;
-      min-height: calc(100vh - 260px);
-      width: calc(100% - 260px);
-      display: block;
     }
 
-    /* Evitar que las categorías del menú se corten */
-    .menu-category {
-      page-break-after: avoid;
-      page-break-inside: avoid;
-    }
-
-    .menu-item {
-      page-break-inside: avoid;
+    .financial-page {
+      page-break-before: always;
+      page-break-inside: auto;
     }
 
     /* ===== AJUSTES PARA IMPRESIÓN/PDF ===== */
     @media print {
-
-      /* Mostrar header en todas las páginas EXCEPTO la primera */
       .repeating-header {
         display: block !important;
         position: fixed;
@@ -420,24 +372,26 @@
         padding: 0;
       }
 
-      /* Asegurar que el header se muestre en páginas de contenido */
       .page-content .repeating-header,
       .single-page .repeating-header {
         display: block !important;
       }
 
-      /* Ocultar header y footer en la primera página (portada) */
       @page :first {
         margin: 0;
       }
 
-      /* Asegurar que los elementos fixed no aparezcan en la portada */
       .cover-page {
         position: relative;
         z-index: 9999;
+        margin: 0 !important;
+        padding: 60px 40px 100px 40px;
       }
 
-      /* Mostrar footer en todas las páginas EXCEPTO la primera */
+      .cover-page * {
+        margin-top: 0 !important;
+      }
+
       .repeating-footer {
         display: block !important;
         position: fixed;
@@ -450,21 +404,21 @@
         z-index: 1000;
       }
 
-      /* Contenido debajo del header (excepto portada) */
       .page-content {
         margin-top: 170px;
         margin-bottom: 200px;
       }
 
-      /* Estilos específicos para páginas de menú en impresión */
-      .menu-page {
+      .menu-page,
+      .financial-page {
         margin-top: 170px;
         margin-bottom: 200px;
-        page-break-before: auto;
+        page-break-before: always;
       }
 
-      /* Sidebar fijo en impresión para páginas de menú */
-      .menu-page .content-layout-sidebar {
+      /* CURA 3: SIDEBAR FIJO TAMBIEN PARA LOS CALCULOS FINANCIEROS .financial-page */
+      .menu-page .content-layout-sidebar,
+      .financial-page .content-layout-sidebar {
         position: fixed;
         left: 0;
         top: 170px;
@@ -477,8 +431,8 @@
         padding-right: 30px;
       }
 
-      /* Contenido principal con margen para el sidebar fijo en impresión */
-      .menu-page .content-layout-main {
+      .menu-page .content-layout-main,
+      .financial-page .content-layout-main {
         margin-top: 0px;
         margin-left: 260px;
         padding-left: 20px;
@@ -488,7 +442,6 @@
         display: block;
       }
 
-      /* Alinear el texto de contacto debajo de la imagen del header */
       .header-content {
         height: auto;
         align-items: flex-start;
@@ -513,17 +466,6 @@
       .content-layout-main.short {
         width: 260px;
       }
-
-      /* La portada NO debe tener márgenes para header/footer */
-      .cover-page {
-        margin: 0 !important;
-        padding: 60px 40px 100px 40px;
-      }
-
-      /* Asegurar que el contenido de la portada no tenga márgenes extra */
-      .cover-page * {
-        margin-top: 0 !important;
-      }
     }
 
     .bold {
@@ -538,9 +480,6 @@
 
 <body class="has-cover">
 
-  <!-- ========================================= -->
-  <!-- PÁGINA 1: PORTADA (sin header ni footer) -->
-  <!-- ========================================= -->
   <div class="cover-page">
     <div class="cover-logo">
       <img src="https://drive.google.com/thumbnail?id=1G86uWc7EzjildOkQoMUc2hm6lzbYkOSk" alt="Logo Empresa">
@@ -550,26 +489,20 @@
     </div>
   </div>
 
-  <!-- ========================================= -->
-  <!-- HEADER REPETIBLE (aparece desde página 2 en adelante) -->
-  <!-- ========================================= -->
   <div class="repeating-header">
     <div class="header-content">
       <img src="https://drive.google.com/thumbnail?id=1XHABV0yzIO_HP5TdM07UebLhPSjRcnE3" alt="Header Design"
         class="header-image">
       <div class="contact-info">
         <div>o — 917.328.8583 / 973.743.1000</div>
-        <div>e — <a href="mailto:hi@foodesignce.com" class="custom-link">hi@foodesignce.com</a></div>
+        <div>e — hi@foodesignce.com</div>
         <div>56 Commerce St, Garfield</div>
         <div>New Jersey, 07026</div>
-        <div>w — <a href="https://foodesignce.com" class="custom-link" target="_blank">foodesignce.com</a></div>
+        <div>w — foodesignce.com</div>
       </div>
     </div>
   </div>
 
-  <!-- ========================================= -->
-  <!-- FOOTER REPETIBLE (aparece desde página 2 en adelante) -->
-  <!-- ========================================= -->
   <div class="repeating-footer">
     <div class="footer-content">
       <div class="footer-logo">
@@ -578,14 +511,10 @@
     </div>
   </div>
 
-  <!-- ========================================= -->
-  <!-- PÁGINA 2: CARTA DE PRESENTACIÓN -->
-  <!-- ========================================= -->
   <div class="single-page page-content">
     <div class="content-layout">
       <div class="content-layout-sidebar">
         <div class="tagline">We create everlasting moments</div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Client</div>
           <div class="sidebar-content">
@@ -594,7 +523,6 @@
             <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
           </div>
         </div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Client Representative</div>
           <div class="sidebar-content">
@@ -603,15 +531,16 @@
             <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
           </div>
         </div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Event Details</div>
           <div class="sidebar-content">
             <div>&lt;&lt;[Event]&gt;&gt;</div>
             <div>&lt;&lt;[Event adress]&gt;&gt;</div>
             <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
-            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
-            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date],
+              "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;
+            </div>
             <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
           </div>
         </div>
@@ -619,42 +548,29 @@
 
       <div class="content-layout-main">
         <p style="padding-top: 50px">Dear &lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</p><br>
-
         <p>Thank you for the opportunity, to provide our services for your events. We look forward to sharing our
           services with you and your guests. Booking staff, planning and directing an event can be stressful. Therefore,
           we promise to do everything we can to ease the burden on you.</p><br>
-
         <p>We have taken all of your concerns and requests into consideration as we developed this proposal and quote.
           We would like to assure you that our wait staff, catering and event services will meet your high food
           standards and suit your personal tastes.</p><br>
-
         <p>In this proposal, we have only included the services that you have selected. Please feel free to notify us if
           you have any concerns or additional services that you would like to request. We hope that you will find this
           proposal to your liking. We are looking forward to helping provide all your guests with an enjoyable and
           unforgettable experience.</p><br>
-
         <p>Sincerely,</p>
-
         <div class="signature-section">
           <div class="signature-line"></div>
-          <div class="signature-text">
-            Raul Gamboa,<br>
-            Foodesign Conceptual Events.
-          </div>
+          <div class="signature-text">Raul Gamboa,<br>Foodesign Conceptual Events.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ========================================= -->
-  <!-- SECCIÓN DE MENÚ - ESTRUCTURA ÚNICA PARA MÚLTIPLES PÁGINAS -->
-  <!-- ========================================= -->
   <div class="page-content menu-page">
     <div class="content-layout">
-      <!-- SIDEBAR REPETIBLE - SE MOSTRARÁ EN CADA PÁGINA DEL MENÚ -->
       <div class="content-layout-sidebar">
         <div class="tagline">We create everlasting moments</div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Client</div>
           <div class="sidebar-content">
@@ -663,7 +579,6 @@
             <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
           </div>
         </div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Client Representative</div>
           <div class="sidebar-content">
@@ -672,175 +587,315 @@
             <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
           </div>
         </div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Event Details</div>
           <div class="sidebar-content">
             <div>&lt;&lt;[Event]&gt;&gt;</div>
             <div>&lt;&lt;[Event adress]&gt;&gt;</div>
             <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
-            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
-            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date],
+              "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;
+            </div>
             <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
           </div>
         </div>
       </div>
 
-      <!-- CONTENIDO PRINCIPAL DEL MENÚ -->
       <div class="content-layout-main">
         <div class="menu-event">
           <div class="sidebar-title">&lt;&lt;[Event]&gt;&gt;</div>
           <div class="sidebar-content">
-            <div>&lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
+            <div>&lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;
+            </div>
           </div>
         </div>
 
+        <p style="display:none; margin:0;">&lt;&lt;IF:ISNOTBLANK([Dietary Restrictions])&gt;&gt;</p>
         <div class="menu-section">
           <div class="sidebar-title">Dietary Restrictions</div>
           <div class="sidebar-content">
             <div>&lt;&lt;[Dietary Restrictions][Name]&gt;&gt;</div>
           </div>
         </div>
+        <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
 
         <div class="menu-section">
+          <p style="display:none; margin:0;">&lt;&lt;Start:ORDERBY([Related BDMeals],[Order])&gt;&gt;</p>
 
-          <!-- INICIO DEL LOOP DE APPSHEET -->
-          <p>&lt;&lt;Start:ORDERBY([Related BDMeals],[Order])&gt;&gt;</p>
-
-          <!-- Encabezado combinado de fecha -->
-          <p>&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
-          
-          <p>&lt;&lt;IF:ISNOTBLANK([Dietary Restrictions])&gt;&gt;</p>
-          <div class="sidebar-title">Dietary Restrictions</div>
-          <div>
-            <div>&lt;&lt;[Dietary Restrictions][Name]&gt;&gt;</div>
-          </div>
-          <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p style="display:none; margin:0;">&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
           <div class="sidebar-title">MENU</div>
           <strong>&lt;&lt;[Fechameals]&gt;&gt;</strong><br>
-          <p>&lt;&lt;ENDIF&gt;&gt;</p>
-          <span class="menu-category">&lt;&lt;[Category].[Name]&gt;&gt;: </span> 
-          <p>&lt;&lt;IF:OR(ISNOTBLANK([Hora]), ISNOTBLANK([Hora Salida]))&gt;&gt;</p>
+          <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+
+          <span class="menu-category">&lt;&lt;[Category].[Name]&gt;&gt;: </span>
+          <p style="display:none; margin:0;">&lt;&lt;IF:OR(ISNOTBLANK([Hora]), ISNOTBLANK([Hora Salida]))&gt;&gt;</p>
           <span>&lt;&lt;TEXT([Hora],"h:mm AM/PM")&gt;&gt; to &lt;&lt;TEXT([Hora Salida],"h:mm AM/PM")&gt;&gt;</span>
-            <p>&lt;&lt;ENDIF&gt;&gt;</p>
+          <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
 
           <div class="menu-item">
+            <p style="display:none; margin:0;">&lt;&lt;IF:([Provide by the client]=FALSE)&gt;&gt;</p>
             <div class="menu-item-description">&lt;&lt;[Description]&gt;&gt;</div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=1)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=1)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 1]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado]&gt;&gt;</div>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=2)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=2)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 1].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 2]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado1]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 1]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=3)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=3)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 2].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 3]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 2]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 2]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=4)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=4)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 3].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 4]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 3]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 3]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=5)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=5)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 4].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 5]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 4]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 4]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=6)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=6)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 5].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 6]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 5]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 5]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=7)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=7)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 6].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 7]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 6]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 6]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=8)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=8)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 7].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 8]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 7]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 7]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=9)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=9)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 8].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 9]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 8]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 8]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=10)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=10)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 9].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 10]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 9]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 9]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=11)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=11)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 10].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 11]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 10]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 10]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
 
             <div class="menu-subcategory">
-              <p>&lt;&lt;IF:([SubCategory Qty]&gt;=12)&gt;&gt;</p>
+              <p style="display:none; margin:0;">&lt;&lt;IF:([SubCategory Qty]&gt;=12)&gt;&gt;</p>
               <div class="menu-item-title">&lt;&lt;[Subcategory 11].[Name]&gt;&gt;</div>
               <div class="menu-item-description">&lt;&lt;[Description 12]&gt;&gt;</div>
-              <div class="menu-item-details" style="white-space:pre-line;">&lt;&lt;[Menu listado 11]&gt;&gt;</div>
-              <p>&lt;&lt;ENDIF&gt;&gt;</p>
+
+              <div class="menu-item-details">
+                <p style="display:none; margin:0;">&lt;&lt;Start: SELECT(BDMenu[ID], IN([ID], [Menu 11]))&gt;&gt;</p>
+                <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 2px;">
+                  ◽ &lt;&lt;IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;IF: ISNOTBLANK([Description])&gt;&gt;</p>
+                <div style="padding-left: 30px; margin-bottom: 8px; color: #555;">
+                  &lt;&lt;[Description]&gt;&gt;
+                </div>
+                <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+                <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
+              </div>
+              <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
             </div>
-          </div>
-          <p>&lt;&lt;End&gt;&gt;</p>
-          <!-- FIN DEL LOOP DE APPSHEET -->
 
+            <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+
+            <p style="display:none; margin:0;">&lt;&lt;IF:([Provide by the client]=TRUE)&gt;&gt;</p>
+            <div style="padding-left: 15px; margin-bottom: 2px;">
+              ◽ Provided by client
+            </div>
+            <p style="display:none; margin:0;">&lt;&lt;ENDIF&gt;&gt;</p>
+
+          </div>
+          <p style="display:none; margin:0;">&lt;&lt;End&gt;&gt;</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ========================================= -->
-  <!-- PÁGINAS ADICIONALES DEL MENÚ (TEMPLATE PARA REPETICIÓN) -->
-  <!-- ========================================= -->
-  <!-- Esta sección se repetirá automáticamente cuando el contenido del menú requiera más páginas -->
-  <div class="page-content menu-page">
+  <div class="page-content financial-page">
     <div class="content-layout">
-      <!-- SIDEBAR REPETIBLE - IDÉNTICO AL DE LA PRIMERA PÁGINA -->
       <div class="content-layout-sidebar">
         <div class="tagline">We create everlasting moments</div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Client</div>
           <div class="sidebar-content">
@@ -849,7 +904,6 @@
             <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
           </div>
         </div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Client Representative</div>
           <div class="sidebar-content">
@@ -858,65 +912,16 @@
             <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
           </div>
         </div>
-
         <div class="sidebar-section">
           <div class="sidebar-title">Event Details</div>
           <div class="sidebar-content">
             <div>&lt;&lt;[Event]&gt;&gt;</div>
             <div>&lt;&lt;[Event adress]&gt;&gt;</div>
             <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
-            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
-            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
-            <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CONTENIDO PRINCIPAL - CONTINUACIÓN DEL MENÚ -->
-      <!-- <div class="content-layout-main"> -->
-        <!-- AppSheet insertará automáticamente el contenido adicional del menú aquí -->
-        <!-- cuando el contenido de la primera página sea demasiado largo -->
-      <!-- </div> -->
-    </div>
-  </div>
-
-  <!-- Salto de página para comenzar la sección de servicios -->
-  <div style="page-break-after: always;"></div>
-
-  <!-- ========================================= -->
-  <!-- PÁGINA: PROPUESTA DE SERVICIOS -->
-  <!-- ========================================= -->
-  <div class="page-content">
-    <div class="content-layout">
-      <div class="content-layout-sidebar">
-        <div class="tagline">We create everlasting moments</div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Client</div>
-          <div class="sidebar-content">
-            <div>&lt;&lt;[Client].[Nombre]&gt;&gt;</div>
-            <div>&lt;&lt;[Client Adress].[Adress]&gt;&gt;</div>
-            <div>&lt;&lt;[Client].[Correo]&gt;&gt;</div>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Client Representative</div>
-          <div class="sidebar-content">
-            <div>&lt;&lt;[Client Representative].[Name_representative]&gt;&gt;</div>
-            <div>&lt;&lt;[Client Representative].[Email_representative]&gt;&gt;</div>
-            <div>Ph: &lt;&lt;[Client Representative].[Formatted Phone]&gt;&gt;</div>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Event Details</div>
-          <div class="sidebar-content">
-            <div>&lt;&lt;[Event]&gt;&gt;</div>
-            <div>&lt;&lt;[Event adress]&gt;&gt;</div>
-            <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
-            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
-            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date],
+              "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;
+            </div>
             <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
           </div>
         </div>
@@ -930,7 +935,6 @@
           </div>
         </div>
 
-        <!-- ===== BLOQUE DE FOOD SERVICES AGRUPADO ===== -->
         <p>&lt;&lt;IF:(COUNT([Related BDMeals])>0)&gt;&gt;</p>
         <div class="financial-section">
           <div class="sidebar-title">Food Service</div>
@@ -940,35 +944,30 @@
 
           <p>&lt;&lt;Start:ORDERBY([Related BDMeals],[Order])&gt;&gt;</p>
 
-          <!-- Encabezado combinado de fecha -->
           <p>&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
           <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
             <span class="bold">&lt;&lt;[Fechameals]&gt;&gt;</span>
           </div>
-          <div><strong>&lt;&lt;TEXT([Total Food por dia])&gt;&gt;</strong></div>
+          <div><strong>&lt;&lt;IF([Total Food por dia]&gt;0, TEXT([Total Food por dia]), "")&gt;&gt;</strong></div>
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <div class="financial-item">
             <span>&lt;&lt;[CategoryPrecioGuest]&gt;&gt;</span>
             <p>&lt;&lt;IF:([Provide by the client]=FALSE)&gt;&gt;</p>
-                <span>&lt;&lt;TEXT([TotalCategoryPrecio])&gt;&gt;</span>
+            <span>&lt;&lt;IF([TotalCategoryPrecio]&gt;0, TEXT([TotalCategoryPrecio]), "")&gt;&gt;</span>
             <p>&lt;&lt;ENDIF&gt;&gt;</p>
             <p>&lt;&lt;IF:([Provide by the client]=TRUE)&gt;&gt;</p>
-                <span>Provide by the client</span>
+            <span>Provide by the client</span>
             <p>&lt;&lt;ENDIF&gt;&gt;</p>
           </div>
           <p>&lt;&lt;End&gt;&gt;</p>
         </div>
         <p>&lt;&lt;ENDIF&gt;&gt;</p>
-        <!-- ===== FIN BLOQUE ===== -->
-
-        <!-- ===== BLOQUE DE LABOR SERVICE FEES AGRUPADO ===== -->
         <p>&lt;&lt;IF:(COUNT([Related Labor Services])>0)&gt;&gt;</p>
         <div class="financial-section">
           <div class="sidebar-title">Labor Service Fees</div>
 
           <p>&lt;&lt;Start:ORDERBY([Related Labor Services],[Order])&gt;&gt;</p>
 
-          <!-- Encabezado combinado de fecha y horas -->
           <p class="m-0">&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
           <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
             <span class="bold">&lt;&lt;[FechaLaborServices]&gt;&gt;</span>
@@ -979,76 +978,73 @@
             <p>Staff suggested based on &lt;&lt;[Hours]&gt;&gt; hours of labor</p>
           </div>
           <div class="financial-item">
-            <span>&lt;&lt;[NombresLaborService]&gt;&gt;<br><br><strong>&lt;&lt;TEXT([TOTAL LABOR SERVICES POR HORAS])&gt;&gt;</strong></span>
+            <span>&lt;&lt;[NombresLaborService]&gt;&gt;<br><br><strong>&lt;&lt;IF([TOTAL LABOR SERVICES POR HORAS]&gt;0,
+                TEXT([TOTAL LABOR SERVICES POR HORAS]), "")&gt;&gt;</strong></span>
           </div>
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
 
           <p>&lt;&lt;End&gt;&gt;</p>
         </div>
         <p>&lt;&lt;ENDIF&gt;&gt;</p>
-        <!-- ===== FIN BLOQUE ===== -->
-
-        <!-- ===== BLOQUE DE EXTRAS EVENTS AGRUPADO ===== -->
         <p>&lt;&lt;IF:(COUNT([Related BDExtras Events])>0)&gt;&gt;</p>
         <div class="financial-section">
           <div class="sidebar-title">Extras Services</div>
 
           <p>&lt;&lt;Start:ORDERBY([Related BDExtras Events],[Order])&gt;&gt;</p>
 
-          <!-- Encabezado combinado de fecha -->
           <p>&lt;&lt;IF:([Show Date Header]=TRUE)&gt;&gt;</p>
           <div class="financial-fechalabor" style="margin-top: 12px; margin-bottom: 8px;">
             <p class="bold">&lt;&lt;[FechaExtrasEvents]&gt;&gt;</p>
           </div>
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <p>&lt;&lt;IF:([Show Rentals Header]=TRUE)&gt;&gt;</p>
-          <span><stong>Sales</stong></span>
+          <p><span><strong>Rentals</strong></span></p>
           <div class="financial-item">
-            <span>&lt;&lt;[NombreExtaServiceEventsFALSE]&gt;&gt;<br><br><strong>&lt;&lt;TEXT([Total Extras Events False])&gt;&gt;</strong></span><br><br>
-            </div>
-            <p>&lt;&lt;EndIF&gt;&gt;</p>
+            <span>&lt;&lt;[NombreExtaServiceEventsFALSE]&gt;&gt;<br><br><strong>&lt;&lt;IF([Total Extras Events
+                False]&gt;0, TEXT([Total Extras Events False]), "")&gt;&gt;</strong></span><br><br>
+          </div>
+          <p>&lt;&lt;EndIF&gt;&gt;</p>
 
-            <p>&lt;&lt;IF:([Show Rentals Header True]=TRUE)&gt;&gt;</p>
-            <span><stong>Rentals</stong></span>
+          <p>&lt;&lt;IF:([Show Rentals Header True]=TRUE)&gt;&gt;</p>
+          <span><strong>Sales</strong></span>
           <div class="financial-item">
-            <span>&lt;&lt;[NombreExtrasEventsServices]&gt;&gt;<br><br><strong>&lt;&lt;TEXT([Total Extras Evenst True])&gt;&gt;</strong></span>
-            </div>
-          
+            <span>&lt;&lt;[NombreExtrasEventsServices]&gt;&gt;<br><br><strong>&lt;&lt;IF([Total Extras Evenst
+                True]&gt;0, TEXT([Total Extras Evenst True]), "")&gt;&gt;</strong></span>
+          </div>
+
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <p>&lt;&lt;If:([Provide by the client]=TRUE)&gt;&gt;</p>
-            <span>&lt;&lt;[Name]&gt;&gt;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Provide by the client</span>
+          <span>&lt;&lt;[Name]&gt;&gt;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Provide by the client</span>
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <p>&lt;&lt;End&gt;&gt;</p>
         </div>
         <p>&lt;&lt;EndIF&gt;&gt;</p>
-        <!-- ===== FIN BLOQUE ===== -->
-
         <div class="financial-section interlineado" style="margin-top: 30px;">
           <div class="financial-item item-total">
             <span>Food</span>
-            <span>&lt;&lt;TEXT([TotalFoodService])&gt;&gt;</span>
+            <span>&lt;&lt;IF([TotalFoodService]&gt;0, TEXT([TotalFoodService]), "")&gt;&gt;</span>
           </div>
           <div class="financial-item">
             <span>Labor Cost</span>
-            <span>&lt;&lt;TEXT([Total Labor Cost])&gt;&gt;</span>
+            <span>&lt;&lt;IF([Total Labor Cost]&gt;0, TEXT([Total Labor Cost]), "")&gt;&gt;</span>
           </div>
           <div class="financial-item">
             <span>Extras Services</span>
-            <span>&lt;&lt;TEXT([TotalExtrasEvents])&gt;&gt;</span>
+            <span>&lt;&lt;IF([TotalExtrasEvents]&gt;0, TEXT([TotalExtrasEvents]), "")&gt;&gt;</span>
           </div>
           <div class="financial-item">
             <span>&lt;&lt;[Tax].[Tax]&gt;&gt; &lt;&lt;[Tax].[Name]&gt;&gt;</span>
-            <span>&lt;&lt;TEXT([TOTALtax])&gt;&gt;</span>
+            <span>&lt;&lt;IF([TOTALtax]&gt;0, TEXT([TOTALtax]), "")&gt;&gt;</span>
           </div>
           <p>&lt;&lt;IF:(COUNT(SELECT(BDExtras Events[ID],[Rentals]=FALSE))>0)&gt;&gt;</p>
           <div class="financial-item">
             <span>Extras Services</span>
-            <span>&lt;&lt;TEXT([TotalExtraeventsSales])&gt;&gt;</span>
+            <span>&lt;&lt;IF([TotalExtraeventsSales]&gt;0, TEXT([TotalExtraeventsSales]), "")&gt;&gt;</span>
           </div>
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <div class="financial-item">
             <span>&lt;&lt;[Service Charge]&gt;&gt;Service Charge</span>
-            <span>&lt;&lt;TEXT([TotalServiceCharge])&gt;&gt;</span>
+            <span>&lt;&lt;IF([TotalServiceCharge]&gt;0, TEXT([TotalServiceCharge]), "")&gt;&gt;</span>
           </div>
           <p class="m-0">&lt;&lt;IF:([Discount]&gt;0)&gt;&gt;</p>
           <div class="financial-item">
@@ -1064,7 +1060,7 @@
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <p class="m-0">&lt;&lt;IF:([Credit Car]&gt;0)&gt;&gt;</p>
           <div class="financial-item">
-            <span>Credit Card</span>
+            <span>Credit Card Fee</span>
             <span>&lt;&lt;TEXT([Total CreditCard])&gt;&gt;</span>
           </div>
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
@@ -1076,19 +1072,15 @@
           <p>&lt;&lt;ENDIF&gt;&gt;</p>
           <div class="financial-total">
             <span>Total Estimate</span>
-            <span>&lt;&lt;TEXT([Total])&gt;&gt;</span>
+            <span>&lt;&lt;IF([Total]&gt;0, TEXT([Total]), "")&gt;&gt;</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Salto de página para comenzar la sección de Explanation of Fees -->
   <div style="page-break-after: always;"></div>
 
-  <!-- ========================================= -->
-  <!-- PÁGINA: Explanation of Fees -->
-  <!-- ========================================= -->
   <div class="page-content">
     <div class="content-layout">
       <div class="content-layout-sidebar">
@@ -1118,8 +1110,10 @@
             <div>&lt;&lt;[Event]&gt;&gt;</div>
             <div>&lt;&lt;[Event adress]&gt;&gt;</div>
             <div>Event Code: &lt;&lt;[Event Code]&gt;&gt;</div>
-            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date], "YYYY"))&gt;&gt;</div>
-            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;</div>
+            <div>Start: &lt;&lt;CONCATENATE(TEXT([Event date], "DDDD, MMMM, D"), "th ", TEXT([Event date],
+              "YYYY"))&gt;&gt;</div>
+            <div>End: &lt;&lt;CONCATENATE(TEXT([End Event], "DDDD, MMMM, D"), "th ", TEXT([End Event], "YYYY"))&gt;&gt;
+            </div>
             <div>&lt;&lt;[Guest]&gt;&gt; Guests</div>
           </div>
         </div>

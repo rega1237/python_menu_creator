@@ -1,17 +1,20 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
-class ClientInfo(BaseModel):
+class BaseSchema(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
+class ClientInfo(BaseSchema):
     name: str = ""
     address: str = ""
     email: str = ""
 
-class ClientRepresentative(BaseModel):
+class ClientRepresentative(BaseSchema):
     name: str = ""
     email: str = ""
     formatted_phone: str = ""
 
-class EventInfo(BaseModel):
+class EventInfo(BaseSchema):
     name: str = ""
     address: str = ""
     code: str = ""
@@ -20,17 +23,13 @@ class EventInfo(BaseModel):
     guests: int = 0
     dietary_restrictions: str = ""
 
-class MenuItem(BaseModel):
+class MenuItem(BaseSchema):
     name: str = ""
     description: str = ""
     diet_options: str = ""
 
-class Subcategory(BaseModel):
-    name: str = ""
-    description: str = ""
-    items: List[MenuItem] = []
 
-class Meal(BaseModel):
+class Meal(BaseSchema):
     show_date_header: bool = False
     date_header: str = ""
     category_name: str = ""
@@ -40,12 +39,57 @@ class Meal(BaseModel):
     total_category_precio: str = ""
     provide_by_client: bool = False
     total_food_por_dia: str = ""
-    subcategories: List[Subcategory] = []
     
-    # AppSheet sends true/false as strings sometimes depending on webhook config
-    model_config = ConfigDict(coerce_numbers_to_str=True)
+    # Flattened subcategories to match AppSheet fixed columns
+    subcategory_1_name: Optional[str] = ""
+    subcategory_1_description: Optional[str] = ""
+    subcategory_1_items: List[MenuItem] = []
+    
+    subcategory_2_name: Optional[str] = ""
+    subcategory_2_description: Optional[str] = ""
+    subcategory_2_items: List[MenuItem] = []
+    
+    subcategory_3_name: Optional[str] = ""
+    subcategory_3_description: Optional[str] = ""
+    subcategory_3_items: List[MenuItem] = []
+    
+    subcategory_4_name: Optional[str] = ""
+    subcategory_4_description: Optional[str] = ""
+    subcategory_4_items: List[MenuItem] = []
+    
+    subcategory_5_name: Optional[str] = ""
+    subcategory_5_description: Optional[str] = ""
+    subcategory_5_items: List[MenuItem] = []
+    
+    subcategory_6_name: Optional[str] = ""
+    subcategory_6_description: Optional[str] = ""
+    subcategory_6_items: List[MenuItem] = []
+    
+    subcategory_7_name: Optional[str] = ""
+    subcategory_7_description: Optional[str] = ""
+    subcategory_7_items: List[MenuItem] = []
+    
+    subcategory_8_name: Optional[str] = ""
+    subcategory_8_description: Optional[str] = ""
+    subcategory_8_items: List[MenuItem] = []
+    
+    subcategory_9_name: Optional[str] = ""
+    subcategory_9_description: Optional[str] = ""
+    subcategory_9_items: List[MenuItem] = []
+    
+    subcategory_10_name: Optional[str] = ""
+    subcategory_10_description: Optional[str] = ""
+    subcategory_10_items: List[MenuItem] = []
+    
+    subcategory_11_name: Optional[str] = ""
+    subcategory_11_description: Optional[str] = ""
+    subcategory_11_items: List[MenuItem] = []
+    
+    subcategory_12_name: Optional[str] = ""
+    subcategory_12_description: Optional[str] = ""
+    subcategory_12_items: List[MenuItem] = []
 
-class LaborService(BaseModel):
+class LaborService(BaseSchema):
     show_date_header: bool = False
     date_header: str = ""
     show_hours_header: bool = False
@@ -53,16 +97,15 @@ class LaborService(BaseModel):
     name: str = ""
     total: str = ""
 
-class ExtrasEvent(BaseModel):
+class ExtrasEvent(BaseSchema):
     show_date_header: bool = False
     date_header: str = ""
-    show_rentals_header: bool = False
     is_rental: bool = False
     name: str = ""
     total: str = ""
     provide_by_client: bool = False
 
-class Financials(BaseModel):
+class Financials(BaseSchema):
     total_food_service: str = ""
     total_labor_cost: str = ""
     total_extras_events: str = ""
@@ -78,7 +121,7 @@ class Financials(BaseModel):
     gratuity: str = ""
     total_estimate: str = ""
 
-class EstimateTotalRequest(BaseModel):
+class EstimateTotalRequest(BaseSchema):
     event_id: str = ""
     client: ClientInfo
     client_representative: ClientRepresentative
