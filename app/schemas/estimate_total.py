@@ -101,6 +101,7 @@ class ExtrasEvent(BaseSchema):
     show_date_header: bool = False
     date_header: str = ""
     is_rental: bool = False
+    is_sales: bool = False
     name: str = ""
     total: str = ""
     provide_by_client: bool = False

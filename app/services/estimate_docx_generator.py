@@ -272,7 +272,7 @@ class EstimateDocxGenerator:
             seen_extras = set()
             unique_extras = []
             for extra in request.extras_events:
-                key = (extra.date_header, extra.name, extra.total, extra.provide_by_client)
+                key = (extra.date_header, extra.is_rental, extra.is_sales, extra.name, extra.total, extra.provide_by_client)
                 if key not in seen_extras:
                     seen_extras.add(key)
                     unique_extras.append(extra)
@@ -281,9 +281,17 @@ class EstimateDocxGenerator:
                 if extra.show_date_header:
                     add_p(extra.date_header, bold=True)
                 
+                if extra.is_rental:
+                    add_p("Rentals", bold=True, space_before=Pt(6))
+                
+                if extra.is_sales:
+                    add_p("Sales", bold=True, space_before=Pt(6))
+
                 p = add_p(space_after=Pt(2))
-                txt = f"{extra.name}\t{extra.total}"
-                if extra.provide_by_client: txt += " (Provided by client)"
+                if extra.provide_by_client:
+                    txt = f"{extra.name}\tProvide by the client"
+                else:
+                    txt = f"{extra.name}\t{extra.total}"
                 p.add_run(txt).bold = True
 
         # 4. Final Summary
