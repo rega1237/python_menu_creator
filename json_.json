@@ -1,0 +1,263 @@
+{
+    "event_id": "<<[ID]>>",
+    "client": {
+        "name": "<<[Client].[Nombre]>>",
+        "address": "<<[Client Adress].[Adress]>>",
+        "email": "<<[Client].[Correo]>>"
+    },
+    "client_representative": {
+        "name": "<<[Client Representative].[Name_representative]>>",
+        "email": "<<[Client Representative].[Email_representative]>>",
+        "formatted_phone": "<<[Client Representative].[Phone 1]>>"
+    },
+    "event": {
+        "name": "<<[Event]>>",
+        "address": "<<[Event adress]>>",
+        "code": "<<[Event Code]>>",
+        "date_formatted": "<<[Event date]>>",
+        "end_date_formatted": "<<[End Event]>>",
+        "guests": "<<[Guest]>>",
+        "dietary_restrictions": "<<[Dietary Restrictions]>>"
+    },
+    "meals": [
+    <<Start: [Related BDMeals
+        ]>>
+    {
+            "show_date_header": "<<[Show Date Header]>>",
+            "date_header": "<<[Fechameals]>>",
+            "category_name": "<<[Category].[Name]>>",
+            "time_range": "<<[time_range]>>",
+            "description": "<<[Category].[Description]>>",
+            "provide_by_client": "<<[Provide by the client]>>",
+            "category_precio_guest": "<<[CategoryPrecioGuest]>>",
+            "total_category_precio": "<<[TotalCategoryPrecio]>>",
+            "total_food_por_dia": "<<[Total Food Por Dia]>>",
+            "subcategory_1_name": "<<[Subcategory].[Name]>>",
+            "subcategory_1_description": "<<[Description 1]>>",
+            "subcategory_1_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_2_name": "<<[Subcategory 1].[Name]>>",
+            "subcategory_2_description": "<<[Description 2]>>",
+            "subcategory_2_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 1
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_3_name": "<<[Subcategory 2].[Name]>>",
+            "subcategory_3_description": "<<[Description 3]>>",
+            "subcategory_3_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 2
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_4_name": "<<[Subcategory 3].[Name]>>",
+            "subcategory_4_description": "<<[Description 4]>>",
+            "subcategory_4_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 3
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_5_name": "<<[Subcategory 4].[Name]>>",
+            "subcategory_5_description": "<<[Description 5]>>",
+            "subcategory_5_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 4
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_6_name": "<<[Subcategory 5].[Name]>>",
+            "subcategory_6_description": "<<[Description 6]>>",
+            "subcategory_6_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 5
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_7_name": "<<[Subcategory 6].[Name]>>",
+            "subcategory_7_description": "<<[Description 7]>>",
+            "subcategory_7_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 6
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_8_name": "<<[Subcategory 7].[Name]>>",
+            "subcategory_8_description": "<<[Description 8]>>",
+            "subcategory_8_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 7
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_9_name": "<<[Subcategory 8].[Name]>>",
+            "subcategory_9_description": "<<[Description 9]>>",
+            "subcategory_9_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 8
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_10_name": "<<[Subcategory 9].[Name]>>",
+            "subcategory_10_description": "<<[Description 10]>>",
+            "subcategory_10_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 9
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_11_name": "<<[Subcategory 10].[Name]>>",
+            "subcategory_11_description": "<<[Description 11]>>",
+            "subcategory_11_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 10
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ],
+            "subcategory_12_name": "<<[Subcategory 11].[Name]>>",
+            "subcategory_12_description": "<<[Description 12]>>",
+            "subcategory_12_items": [
+        <<Start: SELECT(BDMenu[ID
+                ], IN([ID
+                ],
+                [Menu 11
+                ]))>>
+        {
+                    "name": "<<IF(ISNOTBLANK([Diet Options]), [Name Menu Diet], [Name])>>",
+                    "description": "<<[Description]>>",
+                    "diet_options": "<<[Diet Options]>>"
+                },
+        <<End>>
+            ]
+        }
+    <<End>>
+    ],
+    "labor_services": [
+    <<Start: [Related Labor Services
+        ]>>
+    {
+            "show_date_header": "<<[Show Date Header]>>",
+            "date_header": "<<[FechaLaborServices]>>",
+            "show_hours_header": "<<[Show Hours Header]>>",
+            "hours": "<<[Hours]>>",
+            "name": "<<[NombresLaborService]>>",
+            "total": "<<[TOTAL LABOR SERVICES POR HORAS]>>"
+        }
+    <<End>>
+    ],
+    "extras_events": [
+<<Start: [Related BDExtras Events
+        ]>>
+{
+            "show_date_header": "<<[Show Date Header]>>",
+            "date_header": "<<[FechaExtrasEvents]>>",
+            "is_rental": "<<[Show Rentals Header]>>",
+            "is_sales": "<<[Show Rentals Header True]>>",
+            "provide_by_client": "<<[Provide by the client]>>",
+            "name": "<<[Name]>>",
+            "name_rental": "<<[NombreExtaServiceEventsFALSE]>>",
+            "name_sales": "<<[NombreExtrasEventsServices]>>",
+            "total": "<<IF([Show Rentals Header]=TRUE, [Total Extras Events False], [Total Extras Evenst True])>>"
+        }
+<<End>>
+    ],
+    "financials": {
+        "total_food_service": "<<[TotalFoodService]>>",
+        "total_labor_cost": "<<[Total Labor Cost]>>",
+        "total_extras_events": "<<[TotalExtrasEvents]>>",
+        "total_extras_sales": "<<[TotalExtraeventsSales]>>",
+        "tax_name": "<<[Tax].[Name]>>",
+        "tax_rate": "<<[Tax].[Tax]>>",
+        "total_tax": "<<[TOTALtax]>>",
+        "service_charge_rate": "<<[Service Charge]>>",
+        "total_service_charge": "<<[TotalServiceCharge]>>",
+        "discount": "<<[Discount]>>",
+        "donation": "<<[Donation]>>",
+        "total_credit_card": "<<[Total CreditCard]>>",
+        "gratuity": "<<[Graturity]>>",
+        "total_estimate": "<<[Total]>>"
+    }
+}
