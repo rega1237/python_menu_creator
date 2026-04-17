@@ -357,7 +357,7 @@ class EstimateDocxGenerator:
         tab_stops.add_tab_stop(Cm(16.5), alignment=WD_ALIGN_PARAGRAPH.RIGHT)
         
         r_total = total_p.add_run(f"Total Estimate\t{fin.total_estimate}")
-        self._set_run_font(r_total, bold=True, size=Pt(13), color_rgb=self.primary_color)
+        self._set_run_font(r_total, bold=True, size_pt=Pt(13), color_rgb=self.primary_color)
         
         p_pr = total_p._element.get_or_add_pPr()
         p_bdr = p_pr.find(qn('w:pBdr'))
