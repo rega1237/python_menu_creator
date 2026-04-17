@@ -272,7 +272,7 @@ class EstimateDocxGenerator:
             seen_extras = set()
             unique_extras = []
             for extra in request.extras_events:
-                key = (extra.date_header, extra.is_rental, extra.is_sales, extra.name, extra.total, extra.provide_by_client)
+                key = (extra.date_header, extra.is_rental, extra.is_sales, extra.name, extra.name_rental, extra.name_sales, extra.total, extra.provide_by_client)
                 if key not in seen_extras:
                     seen_extras.add(key)
                     unique_extras.append(extra)
@@ -288,33 +288,77 @@ class EstimateDocxGenerator:
                     add_p("Sales", bold=True, space_before=Pt(6))
 
                 p = add_p(space_after=Pt(2))
+                # Determine name based on flags
+                display_name = extra.name
+                if not extra.provide_by_client:
+                    if extra.is_rental: display_name = extra.name_rental
+                    elif extra.is_sales: display_name = extra.name_sales
+
                 if extra.provide_by_client:
-                    txt = f"{extra.name}\tProvide by the client"
+                    txt = f"{display_name}\tProvide by the client"
                 else:
-                    txt = f"{extra.name}\t{extra.total}"
+                    txt = f"{display_name}\t{extra.total}"
                 p.add_run(txt).bold = True
 
         # 4. Final Summary
         add_p(space_before=Pt(20))
         fin = request.financials
-        summary_items = [
-            ("Food", fin.total_food_service),
-            ("Labor Cost", fin.total_labor_cost),
-            ("Extras Services", fin.total_extras_events),
-            (f"{fin.tax_rate} {fin.tax_name}", fin.total_tax),
-            (f"{fin.service_charge_rate} Service Charge", fin.total_service_charge),
-        ]
-        if fin.discount and fin.discount != "0": summary_items.append(("Discount", f"-{fin.discount}"))
-        if fin.donation and fin.donation != "0": summary_items.append(("Donation", f"-{fin.donation}"))
-        if fin.total_credit_card and fin.total_credit_card != "0": summary_items.append(("Credit Card Fee", fin.total_credit_card))
-        if fin.gratuity and fin.gratuity != "0": summary_items.append(("Gratuity", fin.gratuity))
+        
+        def is_zero(val):
+            if not val: return True
+            clean_val = str(val).replace("$", "").replace(",", "").strip()
+            try:
+                return float(clean_val) == 0
+            except ValueError:
+                return False
 
-        for label, val in summary_items:
+        summary_items = [
+            ("Food", fin.total_food_service, True),
+            ("Labor Cost", fin.total_labor_cost, True),
+            ("Extras Services", fin.total_extras_events, True),
+            (f"{fin.tax_rate} {fin.tax_name}", fin.total_tax, True),
+        ]
+        
+        # Add Extras Services (Sales) if not zero
+        if not is_zero(fin.total_extras_sales):
+            summary_items.append(("Extras Services", fin.total_extras_sales, True))
+            
+        summary_items.append((f"{fin.service_charge_rate} Service Charge", fin.total_service_charge, True))
+
+        # Conditional items
+        if fin.discount and not is_zero(fin.discount):
+            val = fin.discount if str(fin.discount).startswith("-") else f"-{fin.discount}"
+            summary_items.append(("Discount", val, False))
+        if fin.donation and not is_zero(fin.donation):
+            val = fin.donation if str(fin.donation).startswith("-") else f"-{fin.donation}"
+            summary_items.append(("Donation", val, False))
+        if fin.total_credit_card and not is_zero(fin.total_credit_card):
+            summary_items.append(("Credit Card Fee", fin.total_credit_card, False))
+        if fin.gratuity and not is_zero(fin.gratuity):
+            summary_items.append(("Gratuity", fin.gratuity, False))
+
+        for label, val, show_always in summary_items:
             p = add_p(space_after=Pt(2))
-            p.add_run(f"{label}\t{val}")
+            
+            # Setup tab stops for right alignment
+            # Word default margin is usually around 16-17cm for Letter size
+            tab_stops = p.paragraph_format.tab_stops
+            tab_stops.add_tab_stop(Cm(16.5), alignment=WD_ALIGN_PARAGRAPH.RIGHT)
+            
+            run = p.add_run(label)
+            p.add_run("\t")
+            
+            if not is_zero(val):
+                p.add_run(str(val))
 
         # Total Line
-        total_p = add_p(f"Total Estimate\t{fin.total_estimate}", bold=True, size=Pt(13), color=self.primary_color, space_before=Pt(8))
+        total_p = add_p(space_after=Pt(2), space_before=Pt(8))
+        tab_stops = total_p.paragraph_format.tab_stops
+        tab_stops.add_tab_stop(Cm(16.5), alignment=WD_ALIGN_PARAGRAPH.RIGHT)
+        
+        r_total = total_p.add_run(f"Total Estimate\t{fin.total_estimate}")
+        self._set_run_font(r_total, bold=True, size=Pt(13), color_rgb=self.primary_color)
+        
         p_pr = total_p._element.get_or_add_pPr()
         p_bdr = p_pr.find(qn('w:pBdr'))
         if p_bdr is None:

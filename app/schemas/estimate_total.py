@@ -103,6 +103,8 @@ class ExtrasEvent(BaseSchema):
     is_rental: bool = False
     is_sales: bool = False
     name: str = ""
+    name_rental: str = ""
+    name_sales: str = ""
     total: str = ""
     provide_by_client: bool = False
 
