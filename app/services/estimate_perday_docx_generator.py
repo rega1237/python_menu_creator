@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from datetime import datetime
 from io import BytesIO
 from docx import Document
@@ -508,6 +509,7 @@ class EstimatePerDayDocxGenerator:
                 self._set_run_font(r_header_suffix, italic=True)
                 
                 names_str = ", ".join([" ".join((item.name or "").split()) for item in group['items']])
+                names_str = re.sub(r'\s+([,;.])', r'\1', names_str)
                 r_names = p_desc.add_run(names_str)
                 self._set_run_font(r_names, bold=False)
                 
