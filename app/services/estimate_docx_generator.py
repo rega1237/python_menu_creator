@@ -324,11 +324,15 @@ class EstimateDocxGenerator:
                 add_p(meal.date_header, bold=True, space_before=Pt(6))
                 add_hr()
             
-            cat_text = meal.category_name.upper()
+            p = add_p("", space_before=Pt(8))
             if meal.time_range:
-                cat_text += f": {meal.time_range}"
-            
-            add_p(cat_text, bold=True, size=Pt(10), color=self.primary_color, space_before=Pt(8))
+                r_cat = p.add_run(meal.category_name.upper() + ": ")
+                self._set_run_font(r_cat, bold=True, size_pt=Pt(10), color_rgb=self.primary_color)
+                r_time = p.add_run(meal.time_range)
+                self._set_run_font(r_time, bold=False, size_pt=Pt(10), color_rgb=self.text_color)
+            else:
+                r_cat = p.add_run(meal.category_name.upper())
+                self._set_run_font(r_cat, bold=True, size_pt=Pt(10), color_rgb=self.primary_color)
             
             if meal.provide_by_client:
                 p = add_p("◽ Provided by client", space_before=Pt(4))
@@ -432,14 +436,18 @@ class EstimateDocxGenerator:
             for meal in day_meals:
                 p = add_p(space_after=Pt(2))
                 p.paragraph_format.tab_stops.add_tab_stop(Cm(16.5), WD_TAB_ALIGNMENT.RIGHT)
-                r_label = p.add_run(meal.category_precio_guest)
+                r_label = p.add_run((meal.category_precio_guest or "").strip())
                 self._set_run_font(r_label)
-                r_spacer = p.add_run("\t") 
-                self._set_run_font(r_spacer)
                 if not meal.provide_by_client:
-                    r_val = p.add_run(self._format_currency(meal.total_category_precio))
-                    self._set_run_font(r_val, bold=False)
+                    val = self._parse_price(meal.total_category_precio)
+                    if abs(val) >= 0.01:
+                        r_spacer = p.add_run("\t")
+                        self._set_run_font(r_spacer)
+                        r_val = p.add_run(self._format_currency(val))
+                        self._set_run_font(r_val, bold=False)
                 else:
+                    r_spacer = p.add_run("\t")
+                    self._set_run_font(r_spacer)
                     r_client = p.add_run("Provided by client")
                     self._set_run_font(r_client, italic=True)
 
@@ -519,7 +527,7 @@ class EstimateDocxGenerator:
                 self._set_run_font(r_header_suffix, italic=True)
                 
                 # 2. Names concatenated (Normal weight)
-                names_str = ", ".join([item.name for item in group['items']])
+                names_str = ", ".join([(item.name or "").strip() for item in group['items']])
                 r_names = p_desc.add_run(names_str)
                 self._set_run_font(r_names, bold=False)
                 
