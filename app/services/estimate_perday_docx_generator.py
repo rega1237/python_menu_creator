@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from datetime import datetime
 from io import BytesIO
 from docx import Document
@@ -420,7 +421,7 @@ class EstimatePerDayDocxGenerator:
                 
                 p = add_p(space_after=Pt(2))
                 p.paragraph_format.tab_stops.add_tab_stop(Cm(16.5), WD_TAB_ALIGNMENT.RIGHT)
-                r_label = p.add_run((meal.category_precio_guest or "").strip())
+                r_label = p.add_run(re.sub(r'\s+', ' ', (meal.category_precio_guest or "")).strip())
                 self._set_run_font(r_label)
                 if not meal.provide_by_client:
                     val = self._parse_price(meal.total_category_precio_guest_por_dia)
@@ -507,7 +508,7 @@ class EstimatePerDayDocxGenerator:
                 r_header_suffix = p_desc.add_run(" hours of labor. ")
                 self._set_run_font(r_header_suffix, italic=True)
                 
-                names_str = ", ".join([(item.name or "").strip() for item in group['items']])
+                names_str = ", ".join([re.sub(r'\s+', ' ', (item.name or "")).strip() for item in group['items']])
                 r_names = p_desc.add_run(names_str)
                 self._set_run_font(r_names, bold=False)
                 
