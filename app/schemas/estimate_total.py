@@ -67,6 +67,7 @@ class MenuItem(BaseSchema):
 
 class Meal(BaseSchema):
     show_date_header: bool = False
+    order: int = 0
     date_header: str = ""
     category_name: str = ""
     time_range: str = ""
@@ -144,6 +145,7 @@ class Meal(BaseSchema):
 
 class LaborService(BaseSchema):
     show_date_header: bool = False
+    order: int = 0
     date_header: str = ""
     show_hours_header: bool = False
     hours: str = ""

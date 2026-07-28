@@ -228,8 +228,7 @@ class EstimatePerDayDocxGenerator:
                 seen_sigs.add(sig)
                 unique_meals.append(unique_meals_map[sig])
 
-        # Sort meals chronologically (stable sort)
-        unique_meals.sort(key=lambda m: self._parse_date_header(m.date_header))
+        unique_meals.sort(key=lambda m: m.order)
 
         # Build DAILY_GUESTS string
         daily_guests_lines = []
@@ -464,6 +463,8 @@ class EstimatePerDayDocxGenerator:
                     seen_labor.add(key)
                     unique_labor.append(labor)
 
+            unique_labor.sort(key=lambda l: l.order)
+
             # 2. Group labor by date and hours (using normalized comparison)
             labor_groups = []
             for labor in unique_labor:
@@ -487,8 +488,7 @@ class EstimatePerDayDocxGenerator:
                         'items': [labor]
                     })
 
-            # Sort labor groups chronologically
-            labor_groups.sort(key=lambda g: self._parse_date_header(g['date']))
+            labor_groups.sort(key=lambda g: min(item.order for item in g['items']))
 
             printed_dates_labor = set()
             for group in labor_groups:

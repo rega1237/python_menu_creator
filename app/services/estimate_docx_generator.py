@@ -246,8 +246,7 @@ class EstimateDocxGenerator:
             if sig not in seen_sigs:
                 seen_sigs.add(sig)
                 unique_meals.append(unique_meals_map[sig])
-        # Sort meals chronologically (stable sort keeps original sub-order within a day)
-        unique_meals.sort(key=lambda m: self._parse_date_header(m.date_header))
+        unique_meals.sort(key=lambda m: m.order)
         
         # Use unique_meals instead of request.meals for content generation
         # request.meals = unique_meals # We can also just use unique_meals below
@@ -480,6 +479,8 @@ class EstimateDocxGenerator:
                     seen_labor.add(key)
                     unique_labor.append(labor)
 
+            unique_labor.sort(key=lambda l: l.order)
+
             # 2. Group labor by date and hours (using normalized comparison)
             labor_groups = []
             for labor in unique_labor:
@@ -503,8 +504,7 @@ class EstimateDocxGenerator:
                         'items': [labor]
                     })
 
-            # Sort labor groups chronologically
-            labor_groups.sort(key=lambda g: self._parse_date_header(g['date']))
+            labor_groups.sort(key=lambda g: min(item.order for item in g['items']))
 
             printed_dates_labor = set()
             for group in labor_groups:
