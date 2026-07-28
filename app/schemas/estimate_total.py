@@ -54,6 +54,13 @@ class EventInfo(BaseSchema):
     guests: int = 0
     dietary_restrictions: str = ""
 
+    @field_validator('guests', mode='before')
+    @classmethod
+    def coerce_guests(cls, v):
+        if v == "" or v is None:
+            return 0
+        return int(v)
+
     @field_validator('date_formatted', 'end_date_formatted', mode='after')
     @classmethod
     def format_dates(cls, v):
