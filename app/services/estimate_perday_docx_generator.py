@@ -310,15 +310,18 @@ class EstimatePerDayDocxGenerator:
                 add_p(meal.date_header, bold=True, space_before=Pt(6))
                 add_hr()
             
-            p = add_p("", space_before=Pt(8))
-            if meal.time_range:
-                r_cat = p.add_run(meal.category_name.upper() + ": ")
-                self._set_run_font(r_cat, bold=True, size_pt=Pt(10), color_rgb=self.primary_color)
-                r_time = p.add_run(meal.time_range)
-                self._set_run_font(r_time, bold=False, size_pt=Pt(10), color_rgb=self.text_color)
-            else:
-                r_cat = p.add_run(meal.category_name.upper())
-                self._set_run_font(r_cat, bold=True, size_pt=Pt(10), color_rgb=self.primary_color)
+            if meal.category_name:
+                p = add_p("", space_before=Pt(8))
+                if meal.time_range:
+                    r_cat = p.add_run(meal.category_name.upper() + ": ")
+                    self._set_run_font(r_cat, bold=True, size_pt=Pt(10), color_rgb=self.primary_color)
+                    r_time = p.add_run(meal.time_range)
+                    self._set_run_font(r_time, bold=False, size_pt=Pt(10), color_rgb=self.text_color)
+                else:
+                    r_cat = p.add_run(meal.category_name.upper())
+                    self._set_run_font(r_cat, bold=True, size_pt=Pt(10), color_rgb=self.primary_color)
+            elif meal.time_range:
+                add_p(meal.time_range, space_before=Pt(8))
             
             if meal.provide_by_client:
                 p = add_p("◽ Provided by client", space_before=Pt(4))
